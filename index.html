@@ -3060,6 +3060,12 @@ var reportChoiceLockedPalaceIndex = -1;
 var reportChoiceFocusProgress = 0;
 var reportChoiceFocusAnchor = new THREE.Vector3();
 var reportChoiceOverviewTarget = new THREE.Vector3();
+var reportChoiceCameraTarget = new THREE.Vector3();
+var entryLockedPalaceIndex = -1;
+var entryFocusProgress = 0;
+var entryFocusAnchor = new THREE.Vector3();
+var entryOverviewTarget = new THREE.Vector3();
+var entryCameraTarget = new THREE.Vector3();
 var spiralAutoOffset = new THREE.Vector3();
 var INTRO_FRAME_SCALE = 1.95;
 var autoFrameScale = INTRO_FRAME_SCALE;
@@ -3284,9 +3290,25 @@ function workstationOverviewReturnProgress(){
   return THREE.MathUtils.smoothstep(zoomScale,1.08,1.70);
 }
 
+function reportChoiceOverviewReturnProgress(){
+  return THREE.MathUtils.smoothstep(zoomScale,1.08,1.48);
+}
+
+function isEntrySpiralState(){
+  return state.current === 'intro' || state.current === 'birth-input';
+}
+
+function entryOverviewReturnProgress(){
+  return THREE.MathUtils.smoothstep(zoomScale,1.08,1.48);
+}
+
 function autoFrameSingleSpiral(response){
   if(state.current === 'report-view' || state.current === 'profile') return;
-  if(state.current === 'workstation' && workstationLockedPalaceIndex >= 0){
+  if(
+    (state.current === 'workstation' && workstationLockedPalaceIndex >= 0) ||
+    (state.current === 'report-choice' && reportChoiceLockedPalaceIndex >= 0) ||
+    (isEntrySpiralState() && entryLockedPalaceIndex >= 0)
+  ){
     spiralAutoOffset.multiplyScalar(1-Math.min(0.18,response*1.15));
     return;
   }
@@ -3382,14 +3404,20 @@ function currentCameraRadius(){
     var workstationFocusScale = THREE.MathUtils.lerp(1,isTouchWorkstationView() ? 0.72 : 1,workstationFocusProgress);
     return (mobile ? 29 : 19.5) * workstationFocusScale * autoFrameScale * zoomScale * cameraRadiusScale;
   }
-  if(state.current === 'birth-input') return (mobile ? 29 : 20) * autoFrameScale * zoomScale * cameraRadiusScale;
+  if(state.current === 'birth-input'){
+    var birthInputFocusScale = THREE.MathUtils.lerp(1,mobile ? 0.70 : 0.74,entryFocusProgress);
+    return (mobile ? 29 : 20) * birthInputFocusScale * autoFrameScale * zoomScale * cameraRadiusScale;
+  }
   if(state.current === 'report-choice'){
-    var reportChoiceFocusScale = THREE.MathUtils.lerp(1,mobile ? 0.46 : 0.58,reportChoiceFocusProgress);
+    var reportChoiceFocusScale = THREE.MathUtils.lerp(1,mobile ? 0.68 : 0.72,reportChoiceFocusProgress);
     return (mobile ? 29 : 18.5) * reportChoiceFocusScale * autoFrameScale * zoomScale * cameraRadiusScale;
   }
   var base = mobile ? 24 : 16.5;
   var raisedRadius = mobile ? 28 : 18.5;
-  return THREE.MathUtils.lerp(base, raisedRadius, liftProgress) * autoFrameScale * zoomScale * cameraRadiusScale;
+  var entryRadiusScale = state.current === 'intro'
+    ? THREE.MathUtils.lerp(1,mobile ? 0.70 : 0.74,entryFocusProgress)
+    : 1;
+  return THREE.MathUtils.lerp(base, raisedRadius, liftProgress) * entryRadiusScale * autoFrameScale * zoomScale * cameraRadiusScale;
 }
 
 function updateCamera(){
@@ -3670,6 +3698,15 @@ function getSanFangSiZhengArr(index){
 }
 
 function selectPalace(i){
+  if(isEntrySpiralState()){
+    if(entryLockedPalaceIndex === i){
+      releaseEntryPalaceLock();
+      clearSelection();
+    } else {
+      lockEntryPalace(i);
+    }
+    return;
+  }
   if(state.current === 'workstation'){
     if(workstationLockedPalaceIndex === i){
       releaseWorkstationPalaceLock();
@@ -3704,15 +3741,30 @@ function selectPalace(i){
   setActivePalace(i);
 }
 
+function lockEntryPalace(i){
+  var mesh = blockMeshes[i];
+  if(!mesh) return;
+  entryLockedPalaceIndex = i;
+  entryFocusProgress = Math.max(entryFocusProgress,0.08);
+  singlePoseUserAdjusted = true;
+  singleFrameUserAdjusted = true;
+  scene.updateMatrixWorld(true);
+  mesh.getWorldPosition(entryFocusAnchor);
+  setActivePalace(i);
+}
+
+function releaseEntryPalaceLock(){
+  entryLockedPalaceIndex = -1;
+  singlePoseUserAdjusted = false;
+  singleFrameUserAdjusted = false;
+}
+
 function lockReportChoicePalace(i){
   var mesh = blockMeshes[i];
   if(!mesh) return;
   reportChoiceLockedPalaceIndex = i;
   reportChoiceFocusProgress = Math.max(reportChoiceFocusProgress,0.08);
   state.shapeSettle = 0;
-  autoFrameScale = 1;
-  zoomScale = 1;
-  cameraRadiusScale = 1;
   singleFrameUserAdjusted = true;
   scene.updateMatrixWorld(true);
   mesh.getWorldPosition(reportChoiceFocusAnchor);
@@ -3810,8 +3862,10 @@ function animate(){
     state.introElapsed += dt;
     var introT = Math.min(1,state.introElapsed/3.2);
     var introEase = architecturalEase(introT);
-    theta = THREE.MathUtils.lerp(-0.68,-0.52,introEase);
-    phi = THREE.MathUtils.lerp(1.08,0.98,introEase);
+    if(entryLockedPalaceIndex < 0){
+      theta = THREE.MathUtils.lerp(-0.68,-0.52,introEase);
+      phi = THREE.MathUtils.lerp(1.08,0.98,introEase);
+    }
     cameraRadiusScale = 1;
     liftProgress = 1;
     if(state.introElapsed > 3.2){
@@ -3828,6 +3882,28 @@ function animate(){
       theta += (Math.PI*0.23-theta) * (1-Math.exp(-2.0*dt));
       phi += (0.86-phi) * (1-Math.exp(-2.0*dt));
     }
+  }
+
+  // --- 开场与出生输入：整盘保持原位，仅移动镜头 ---
+  var entryFocusTarget = isEntrySpiralState() && entryLockedPalaceIndex >= 0 ? 1 : 0;
+  entryFocusProgress += (entryFocusTarget-entryFocusProgress) * (1-Math.exp(-1.7*dt));
+  if(isEntrySpiralState() && entryLockedPalaceIndex >= 0){
+    var entryFocusMesh = blockMeshes[entryLockedPalaceIndex];
+    var entryReaderTheta = entryFocusMesh ? -(entryFocusMesh.userData.readerYaw || 0) : 0;
+    var entryOverviewReturn = entryOverviewReturnProgress();
+    var entryOverviewTheta = state.current === 'intro' ? -0.52 : Math.PI*0.23;
+    var entryFocusTheta = THREE.MathUtils.lerp(entryReaderTheta,entryOverviewTheta,entryOverviewReturn);
+    var entryThetaDelta = Math.atan2(
+      Math.sin(entryFocusTheta-theta),
+      Math.cos(entryFocusTheta-theta)
+    );
+    var entryFocusPhi = THREE.MathUtils.lerp(
+      0.38,
+      state.current === 'intro' ? 0.98 : 0.86,
+      entryOverviewReturn
+    );
+    theta += entryThetaDelta * (1-Math.exp(-1.55*dt));
+    phi += (entryFocusPhi-phi) * (1-Math.exp(-1.55*dt));
   }
 
   // --- arranging 阶段：排盘动画 ---
@@ -3862,10 +3938,30 @@ function animate(){
     state.spiralOffsetX += (0 - state.spiralOffsetX) * (1-Math.exp(-2.0*dt));
     state.spiralOffsetY += (0 - state.spiralOffsetY) * (1-Math.exp(-2.0*dt));
     var reportChoiceFocusTarget = reportChoiceLockedPalaceIndex >= 0 ? 1 : 0;
-    reportChoiceFocusProgress += (reportChoiceFocusTarget-reportChoiceFocusProgress) * (1-Math.exp(-8.5*dt));
+    reportChoiceFocusProgress += (reportChoiceFocusTarget-reportChoiceFocusProgress) * (1-Math.exp(-1.7*dt));
     if(reportChoiceLockedPalaceIndex >= 0){
-      theta += (0-theta) * (1-Math.exp(-8.5*dt));
-      phi += (0.20-phi) * (1-Math.exp(-8.5*dt));
+      var reportChoiceFocusMesh = blockMeshes[reportChoiceLockedPalaceIndex];
+      var reportChoiceReaderTheta = !choiceIsFlat && reportChoiceFocusMesh
+        ? -(reportChoiceFocusMesh.userData.readerYaw || 0)
+        : 0;
+      var reportChoiceOverviewReturn = reportChoiceOverviewReturnProgress();
+      var reportChoiceOverviewTheta = choiceIsFlat ? 0 : Math.PI*0.23;
+      var reportChoiceFocusTheta = THREE.MathUtils.lerp(
+        reportChoiceReaderTheta,
+        reportChoiceOverviewTheta,
+        reportChoiceOverviewReturn
+      );
+      var reportChoiceThetaDelta = Math.atan2(
+        Math.sin(reportChoiceFocusTheta-theta),
+        Math.cos(reportChoiceFocusTheta-theta)
+      );
+      var reportChoiceFocusPhi = THREE.MathUtils.lerp(
+        choiceIsFlat ? 0.30 : 0.38,
+        choiceIsFlat ? 0.30 : 0.86,
+        reportChoiceOverviewReturn
+      );
+      theta += reportChoiceThetaDelta * (1-Math.exp(-1.55*dt));
+      phi += (reportChoiceFocusPhi-phi) * (1-Math.exp(-1.55*dt));
     } else if(reportChoiceFocusProgress > 0.01){
       theta += (Math.PI*0.23-theta) * (1-Math.exp(-5.2*dt));
       phi += (0.86-phi) * (1-Math.exp(-5.2*dt));
@@ -3967,12 +4063,32 @@ function animate(){
 
   if(state.current === 'report-view'){
     target.set(0, 0, 0);
+  } else if(isEntrySpiralState()){
+    entryOverviewTarget.set(0,totalH*0.5*liftProgress,0);
+    if(entryLockedPalaceIndex >= 0 && blockMeshes[entryLockedPalaceIndex]){
+      scene.updateMatrixWorld(true);
+      blockMeshes[entryLockedPalaceIndex].getWorldPosition(entryFocusAnchor);
+      entryCameraTarget.copy(entryFocusAnchor).lerp(
+        entryOverviewTarget,
+        entryOverviewReturnProgress()
+      );
+      target.lerp(entryCameraTarget,1-Math.exp(-1.55*dt));
+    } else {
+      target.lerp(entryOverviewTarget,1-Math.exp(-2.4*dt));
+    }
   } else if(state.current === 'report-choice'){
     reportChoiceOverviewTarget.set(0,totalH*0.5*liftProgress,0);
-    var reportChoiceTarget = reportChoiceLockedPalaceIndex >= 0
-      ? reportChoiceFocusAnchor
-      : reportChoiceOverviewTarget;
-    target.lerp(reportChoiceTarget,1-Math.exp(-9.0*dt));
+    if(reportChoiceLockedPalaceIndex >= 0 && blockMeshes[reportChoiceLockedPalaceIndex]){
+      scene.updateMatrixWorld(true);
+      blockMeshes[reportChoiceLockedPalaceIndex].getWorldPosition(reportChoiceFocusAnchor);
+      reportChoiceCameraTarget.copy(reportChoiceFocusAnchor).lerp(
+        reportChoiceOverviewTarget,
+        reportChoiceOverviewReturnProgress()
+      );
+      target.lerp(reportChoiceCameraTarget,1-Math.exp(-1.55*dt));
+    } else {
+      target.lerp(reportChoiceOverviewTarget,1-Math.exp(-2.4*dt));
+    }
   } else if(state.current === 'workstation'){
     workstationOverviewTarget.set(0,totalH*0.5*liftProgress,0);
     if(workstationLockedPalaceIndex >= 0 && blockMeshes[workstationLockedPalaceIndex]){
@@ -4011,24 +4127,22 @@ function animate(){
       var isRelation = activeIndex >= 0 && activeRelations.indexOf(i) >= 0;
       var isWorkstationLocked = state.current === 'workstation' && i === workstationLockedPalaceIndex;
       var isReportChoiceLocked = state.current === 'report-choice' && i === reportChoiceLockedPalaceIndex;
-      var isCameraLocked = isWorkstationLocked || isReportChoiceLocked;
-      var reportChoiceFocusActive = state.current === 'report-choice' && reportChoiceLockedPalaceIndex >= 0;
-      m.visible = !reportChoiceFocusActive || isReportChoiceLocked || reportChoiceFocusProgress < 0.82;
+      var isEntryLocked = isEntrySpiralState() && i === entryLockedPalaceIndex;
+      var isCameraLocked = isWorkstationLocked || isReportChoiceLocked || isEntryLocked;
+      m.visible = true;
 
-      if(isReportChoiceLocked){
-        m.rotation.y = (m.userData.readerYaw || 0)*Math.max(state.flatFacingProgress,reportChoiceFocusProgress);
-      }
-      if(isCameraLocked) m.scale.setScalar(THREE.MathUtils.lerp(1,1.055,
-        isReportChoiceLocked ? reportChoiceFocusProgress : (isTouchWorkstationView() ? workstationFocusProgress : 0)));
+      if(isWorkstationLocked) m.scale.setScalar(THREE.MathUtils.lerp(
+        1,
+        1.055,
+        isTouchWorkstationView() ? workstationFocusProgress : 0
+      ));
 
       var targetEmissiveIntensity = isActive
         ? (isCameraLocked ? 0.42 : 0.20 + flatSelectionDepth*0.12)
         : (isRelation ? 0.10 + flatSelectionDepth*0.08 : 0);
       var targetColorMode = isActive ? 'activeColor' : (isRelation ? 'relationColor' : 'baseColor');
       var targetGlow = isActive ? activeGlowColor : (isRelation ? relationGlowColor : noGlowColor);
-      var reportChoiceContextOpacity = state.current === 'report-choice' && reportChoiceLockedPalaceIndex >= 0 && !isReportChoiceLocked
-        ? THREE.MathUtils.lerp(1,0.07,reportChoiceFocusProgress)
-        : 1;
+      var reportChoiceContextOpacity = 1;
 
       eachMeshMaterial(m, function(material){
         material.transparent = reportChoiceContextOpacity < 0.999;
@@ -4080,7 +4194,7 @@ function animate(){
     updateSpiralRelationLinePositions();
     relationArrowGroup.children.forEach(function(arrow){
       if(arrow.material && arrow.material.opacity != null){
-        arrow.material.opacity = THREE.MathUtils.lerp(0.82,0.14,reportChoiceFocusProgress);
+        arrow.material.opacity = 0.82;
       }
     });
   }
@@ -5464,6 +5578,9 @@ function backToChoice(){
 
 document.getElementById('submitBirth').addEventListener('click', function(){
   if(state.current !== 'birth-input') return;
+  releaseEntryPalaceLock();
+  entryFocusProgress = 0;
+  clearSelection();
   document.getElementById('birthPanel').classList.remove('visible');
   interactionLocked = true;
   setState('arranging');
@@ -5544,6 +5661,8 @@ window.__ZIWEI_FLOW_TEST__ = {
       workstationSelection: JSON.parse(JSON.stringify(workstationSelection)),
       workstationLockedPalaceIndex: workstationLockedPalaceIndex,
       workstationFocusUserAdjusted: workstationFocusUserAdjusted,
+      entryLockedPalaceIndex: entryLockedPalaceIndex,
+      entryFocusProgress: entryFocusProgress,
       reportChoiceLockedPalaceIndex: reportChoiceLockedPalaceIndex,
       reportChoiceFocusProgress: reportChoiceFocusProgress,
       cameraPose: {
@@ -5572,6 +5691,9 @@ window.__ZIWEI_FLOW_TEST__ = {
       document.getElementById('birthPanel').classList.add('visible');
     }
     if(state.current === 'birth-input'){
+      releaseEntryPalaceLock();
+      entryFocusProgress = 0;
+      clearSelection();
       document.getElementById('birthPanel').classList.remove('visible');
       interactionLocked = true;
       setState('arranging');
@@ -5595,6 +5717,24 @@ window.__ZIWEI_FLOW_TEST__ = {
       backToChoice();
     }
     return state.current;
+  },
+  selectEntryPalace: function(palaceIndex){
+    if(isEntrySpiralState()) selectPalace(palaceIndex);
+    return {
+      lockedPalaceIndex: entryLockedPalaceIndex,
+      visiblePalaces: blockMeshes.filter(function(mesh){ return mesh.visible; }).length,
+      zoomScale: zoomScale,
+      frameScale: autoFrameScale
+    };
+  },
+  selectReportChoicePalace: function(palaceIndex){
+    if(state.current === 'report-choice') selectPalace(palaceIndex);
+    return {
+      lockedPalaceIndex: reportChoiceLockedPalaceIndex,
+      visiblePalaces: blockMeshes.filter(function(mesh){ return mesh.visible; }).length,
+      zoomScale: zoomScale,
+      frameScale: autoFrameScale
+    };
   },
   toggleChartShape: function(){
     toggleChartShape();
