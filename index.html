@@ -2006,7 +2006,16 @@ function calculateChart(){
   if(typeof state !== 'undefined' && state && state.generatedChart){
     return state.generatedChart;
   }
-  if(!DEMO_SAMPLE_CHART) DEMO_SAMPLE_CHART = buildDemoSampleChart();
+  if(!DEMO_SAMPLE_CHART){
+    var demoInput = { year:2026, month:7, day:14, hour:6, minute:53, gender:'female', calendar:'solar', isLeapMonth:false };
+    try{
+      // 首页样本与提交后报告必须使用同一套真实排盘程序，避免同一生日出现两张不同命盘。
+      DEMO_SAMPLE_CHART = createBrowserChart(demoInput);
+      DEMO_SAMPLE_CHART.isDemoSample = true;
+    }catch(error){
+      DEMO_SAMPLE_CHART = buildDemoSampleChart();
+    }
+  }
   return DEMO_SAMPLE_CHART;
 }
 
