@@ -4513,12 +4513,11 @@ function animate(){
     state.introElapsed += dt;
     var introT = Math.min(1,state.introElapsed/3.2);
     var introEase = architecturalEase(introT);
-    if(entryLockedPalaceIndex < 0){
+    if(entryLockedPalaceIndex < 0 && state.chartShape !== 'flat'){
       theta = THREE.MathUtils.lerp(-0.68,-0.52,introEase);
       phi = THREE.MathUtils.lerp(1.08,0.98,introEase);
     }
     cameraRadiusScale = 1;
-    liftProgress = 1;
     if(state.introElapsed > 3.2){
       setState('birth-input');
       document.getElementById('birthPanel').classList.add('visible');
@@ -4530,9 +4529,19 @@ function animate(){
     state.spiralOffsetX += (0-state.spiralOffsetX) * (1-Math.exp(-2.5*dt));
     state.spiralOffsetY += (0-state.spiralOffsetY) * (1-Math.exp(-2.5*dt));
     if(!singlePoseUserAdjusted){
-      theta += (Math.PI*0.23-theta) * (1-Math.exp(-2.0*dt));
-      phi += (0.86-phi) * (1-Math.exp(-2.0*dt));
+      var birthInputIsFlat = state.chartShape === 'flat';
+      theta += ((birthInputIsFlat ? 0 : Math.PI*0.23)-theta) * (1-Math.exp(-2.0*dt));
+      phi += ((birthInputIsFlat ? 0.30 : 0.86)-phi) * (1-Math.exp(-2.0*dt));
     }
+  }
+
+  // 首页和出生输入页共用真实的落盘进度，不能只切换按钮文字。
+  if(isEntrySpiralState()){
+    var entryIsFlat = state.chartShape === 'flat';
+    var entryFacingTarget = entryIsFlat && liftProgress < 0.06 ? 1 : 0;
+    state.flatFacingProgress += (entryFacingTarget-state.flatFacingProgress) * (1-Math.exp(-3.2*dt));
+    var entryLiftTarget = entryIsFlat ? 0 : (state.flatFacingProgress < 0.06 ? 1 : 0);
+    liftProgress += (entryLiftTarget-liftProgress) * (1-Math.exp(-2.0*dt));
   }
 
   // --- 开场与出生输入：整盘保持原位，仅移动镜头 ---
@@ -4540,17 +4549,18 @@ function animate(){
   entryFocusProgress += (entryFocusTarget-entryFocusProgress) * (1-Math.exp(-1.7*dt));
   if(isEntrySpiralState() && entryLockedPalaceIndex >= 0){
     var entryFocusMesh = blockMeshes[entryLockedPalaceIndex];
-    var entryReaderTheta = entryFocusMesh ? -(entryFocusMesh.userData.readerYaw || 0) : 0;
+    var entryFocusIsFlat = state.chartShape === 'flat';
+    var entryReaderTheta = !entryFocusIsFlat && entryFocusMesh ? -(entryFocusMesh.userData.readerYaw || 0) : 0;
     var entryOverviewReturn = entryOverviewReturnProgress();
-    var entryOverviewTheta = state.current === 'intro' ? -0.52 : Math.PI*0.23;
+    var entryOverviewTheta = entryFocusIsFlat ? 0 : (state.current === 'intro' ? -0.52 : Math.PI*0.23);
     var entryFocusTheta = THREE.MathUtils.lerp(entryReaderTheta,entryOverviewTheta,entryOverviewReturn);
     var entryThetaDelta = Math.atan2(
       Math.sin(entryFocusTheta-theta),
       Math.cos(entryFocusTheta-theta)
     );
     var entryFocusPhi = THREE.MathUtils.lerp(
-      0.38,
-      state.current === 'intro' ? 0.98 : 0.86,
+      entryFocusIsFlat ? 0.30 : 0.38,
+      entryFocusIsFlat ? 0.30 : (state.current === 'intro' ? 0.98 : 0.86),
       entryOverviewReturn
     );
     theta += entryThetaDelta * (1-Math.exp(-1.55*dt));
@@ -4662,7 +4672,7 @@ function animate(){
     workstationFocusProgress += (0-workstationFocusProgress) * (1-Math.exp(-5.2*dt));
   }
 
-  if((state.current === 'report-choice' || state.current === 'workstation') && state.shapeSettle > 0){
+  if((isEntrySpiralState() || state.current === 'report-choice' || state.current === 'workstation') && state.shapeSettle > 0){
     state.shapeSettle = Math.max(0,state.shapeSettle-dt);
     var flatShape = state.chartShape === 'flat';
     var shapeTheta = flatShape ? 0 : Math.PI*0.23;
