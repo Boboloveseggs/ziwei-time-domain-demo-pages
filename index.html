@@ -2269,6 +2269,25 @@ function buildDynamicProfessionalReport(chart){
   return html;
 }
 
+function buildDecisionTreeSection(number,title,tree){
+  var rows = [
+    ['核心倾向',tree.core],
+    ['可能表现',tree.forms],
+    ['判断标准',tree.signal],
+    ['具体建议',tree.action]
+  ];
+  var html = '<div class="plain-section"><h3><span class="sec-num">' + number + '</span>' + title + '</h3><div class="report-card">';
+  rows.forEach(function(row){
+    html += '<div class="row"><span class="k">' + row[0] + '</span><span class="v">' + row[1] + '</span></div>';
+  });
+  html += '</div>';
+  if(tree.sharp){
+    html += '<div class="report-callout"><strong>高辨识度判断：</strong>' + tree.sharp + '</div>';
+  }
+  html += '</div>';
+  return html;
+}
+
 function buildDynamicPlainReport(chart){
   var ming = chartPalaceAt(chart, chart.mingPalaceIndex || 0);
   var major = chartPalaceAt(chart, chart.majorPalaceIndex || 0);
@@ -2282,18 +2301,56 @@ function buildDynamicPlainReport(chart){
   var html = '';
   html += '<div class="report-title">电脑基础解读｜大白话版</div>';
   html += '<div class="report-subtitle">根据本次真实命盘自动翻译 · ' + chart.currentYear + ' 年</div>';
-  html += '<div class="report-callout"><strong>先说清楚：</strong>下面内容由电脑按照固定规则逐项翻译你的宫位与星曜，能快速看懂基础结构，但没有经过人工逐宫校对和细化。</div>';
-  html += '<div class="plain-section"><h3><span class="sec-num">01</span>你大概是什么结构</h3><p class="report-copy">当前命宫在<strong>' + ming.palaceName + '</strong>，主要星曜显示为<strong>' + starSummary(ming) + '</strong>。大白话理解是：先观察自己的行动习惯，再决定用什么方式推进事情。</p></div>';
-  html += '<div class="plain-section"><h3><span class="sec-num">02</span>今年身体怎么保底</h3><p class="report-copy">疾厄宫显示为' + starSummary(health) + '。不要把它当疾病诊断；真正有用的是记录睡眠、疼痛、外出和恢复之间的关系。</p></div>';
-  html += '<div class="plain-section"><h3><span class="sec-num">03</span>事业从哪里推进</h3><p class="report-copy">事业宫显示为' + starSummary(career) + '。今年先把机会拆成作品、项目、平台、证书和客户五类，再看哪一类有真实反馈。</p></div>';
-  html += '<div class="plain-section"><h3><span class="sec-num">04</span>钱应该怎么管理</h3><p class="report-copy">财帛宫显示为' + starSummary(money) + '。预算、报价、合同、交付边界和分成规则，都要先写清再行动。</p></div>';
-  html += '<div class="plain-section"><h3><span class="sec-num">05</span>爱情和关系怎么看</h3><p class="report-copy">夫妻宫显示为' + starSummary(couple) + '。适不适合推进，不看一句话，而看对方能否持续出现、处理冲突并尊重边界。</p></div>';
-  html += '<div class="plain-section"><h3><span class="sec-num">06</span>哪些人带机会</h3><p class="report-copy">交友宫显示为' + starSummary(friends) + '。优先保留能提供信息、资源、反馈并愿意共同承担责任的人。</p></div>';
-  html += '<div class="plain-section"><h3><span class="sec-num">07</span>三层时间怎么叠加</h3><p class="report-copy">大运在<strong>' + major.palaceName + '</strong>，小限在<strong>' + small.palaceName + '</strong>，流年在<strong>' + yearly.palaceName + '</strong>。上方三盘分别显示它们的三方四正，帮助你区分长期背景和短期波动。</p></div>';
+  html += '<div class="report-callout"><strong>阅读方式：</strong>下面每项先给方向，再列出几种可能表现、判断标准和具体做法。它不会把单一星曜写成只有对错的剧情，也没有经过人工逐宫校对和细化。</div>';
+  html += buildDecisionTreeSection('01','你大概是什么结构',{
+    core:'命宫落在<strong>' + ming.palaceName + '</strong>，主要星曜为<strong>' + starSummary(ming) + '</strong>。你的行动状态更容易受到“这件事是否值得、规则是否讲得通”的影响。',
+    forms:'可能表现为先观察再行动、在逻辑清楚时推进很快，或者面对反复修改和无意义流程时明显失去耐心。',
+    signal:'如果你对真正认同的事情执行力很强，却会拖延那些目标模糊、标准反复变化的任务，这个倾向已经在现实中出现。',
+    action:'开始前先写清完成标准，把任务分成“必须做、可以协商、可以删除”三类；不要只靠情绪判断自己有没有执行力。',
+    sharp:'你不是没有执行力，而是只有在事情值得做、逻辑讲得通时，执行力才会很强。最消耗你的往往不是工作量，而是反复做你认为没有意义的事。'
+  });
+  html += buildDecisionTreeSection('02','今年身体怎么保底',{
+    core:'疾厄宫显示为<strong>' + starSummary(health) + '</strong>。这里更适合观察压力与恢复机制，不用于推断某一种疾病。',
+    forms:'压力可能通过睡眠变浅、久坐后的紧绷、食欲变化、疲劳累积，或者外出之后恢复变慢等方式表现；不一定同时出现。',
+    signal:'如果同一种不舒服经常出现在熬夜、连续赶工、情绪紧绷或行程密集之后，就先把它视为需要调整节奏的信号。',
+    action:'连续记录七天的睡眠、疼痛或不适、活动量和恢复时间；反复或明显异常应及时寻求专业医疗检查，不用命盘代替诊断。'
+  });
+  html += buildDecisionTreeSection('03','事业从哪里推进',{
+    core:'事业宫显示为<strong>' + starSummary(career) + '</strong>。今年事业更容易进入调整期，重点在职责、规则和成果形式是否需要重新匹配。',
+    forms:'可能表现为换工作、换岗位、工作内容变化、合作重新分配，也可能只是你开始认真评估要不要离开当前环境。',
+    signal:'如果最近频繁出现“继续做也没有意义”“总在返工”“想换一个评价方式或环境”的念头，调整信号已经开始显现。',
+    action:'未来四周只保留一个可验证的事业目标，并记录返工究竟来自需求不清、权限不足还是能力缺口；先找到原因，再决定留下、协商或离开。',
+    sharp:'真正需要判断的不是“会不会换工作”，而是当前环境正在积累你的能力，还是只在重复消耗你的耐心。'
+  });
+  html += buildDecisionTreeSection('04','钱应该怎么管理',{
+    core:'财帛宫显示为<strong>' + starSummary(money) + '</strong>。财务压力更可能来自计划外支出和边界不清，而不必然是一次明显损失。',
+    forms:'可能表现为设备、家人、人情、学习、项目成本不断增加，也可能是报价、分成、报销或交付范围没有提前说清。',
+    signal:'如果支出总是单笔不大却持续增加，或项目收入看起来不错但实际剩不下来，就需要先检查现金流和规则，而不是只看总金额。',
+    action:'单笔超过月收入10%的非必要支出至少隔24小时再决定；项目预算单独记录，报价、分成和额外交付在开始前写清。'
+  });
+  html += buildDecisionTreeSection('05','爱情和关系怎么看',{
+    core:'夫妻宫显示为<strong>' + starSummary(couple) + '</strong>。关系中的关键不是短期热度，而是双方能否持续出现、处理冲突并尊重边界。',
+    forms:'可能表现为关系推进速度不同、时间安排反复、承诺没有落实，或者遇到分歧时一方倾向回避、另一方不断追问。',
+    signal:'如果你需要长期猜测对方的态度，重要计划总停留在口头，或每次冲突都只能由同一个人收尾，关系成本已经高于表面的甜蜜。',
+    action:'把时间安排、金钱边界和冲突处理方式分别问清；连续观察真实行动，不用一句承诺替代长期表现。',
+    sharp:'让你反复猜的人未必神秘，更可能是信息和责任都没有表达清楚。'
+  });
+  html += buildDecisionTreeSection('06','哪些人带机会',{
+    core:'交友宫显示为<strong>' + starSummary(friends) + '</strong>。机会更容易来自能够提供真实信息、具体反馈并愿意共同承担责任的人。',
+    forms:'对方可能是同事、客户、社群伙伴、线上认识的人或旧关系；重点不在身份，而在是否带来可验证的连接与行动。',
+    signal:'真正有价值的关系通常会给出具体介绍、明确下一步、真实反馈，或在出现问题时仍愿意一起处理，而不只是在情绪高涨时表达支持。',
+    action:'把重要关系按“能提供什么、我能回馈什么、下一步是什么”做三列记录；优先跟进有明确行动的人。'
+  });
+  html += buildDecisionTreeSection('07','三层时间怎么叠加',{
+    core:'大运在<strong>' + major.palaceName + '</strong>，流年在<strong>' + yearly.palaceName + '</strong>，小限在<strong>' + small.palaceName + '</strong>。它们分别代表长期背景、今年触发和当下着力点，不等于三件必然发生的事件。',
+    forms:'同一趋势可能表现为外部变化，也可能先表现为心理态度、关系边界或行动重点改变；上方三盘用来观察哪些主题反复出现。',
+    signal:'如果某个问题在不同工作、关系或生活场景里重复出现，就优先把它视为当前主轴，而不是把注意力只放在一次偶然事件上。',
+    action:'每周只复盘三件事：本周重复出现的压力、已经得到现实反馈的机会、下周唯一需要推进的动作。'
+  });
   html += '<div class="plain-section"><h3><span class="sec-num">08</span>最重要的行动清单</h3><ol class="action-list">';
-  ['先记录事实，再解释原因。','身体异常以专业检查为准。','只保留一个本月事业重点。','给必要支出设置上限。','合作前写清职责和交付。','关系推进看长期行动。','每周整理一次作品和资料。','减少同时启动的项目数量。','月底复盘一次三条主轴。','重大决定不依赖本基础解读。'].forEach(function(item){ html += '<li>' + item + '</li>'; });
+  ['先记录事实，再解释原因。','把一种趋势拆成三种可能表现。','身体异常以专业检查为准。','未来四周只保留一个事业重点。','大额非必要支出隔24小时再决定。','合作前写清职责、分成和额外交付。','关系推进看持续行动，不看一次热度。','每周整理一次作品、反馈和联系人。','月底复盘重复出现的三条主轴。','重大决定必须结合现实证据。'].forEach(function(item){ html += '<li>' + item + '</li>'; });
   html += '</ol></div>';
-  html += '<div class="report-callout"><strong>大白话最终结论：</strong>身体先稳住，事业钱靠可复用成果推进，关系只相信能够长期兑现的行动。</div>';
+  html += '<div class="report-callout"><strong>大白话最终结论：</strong>最值得相信的不是某一句吉凶，而是反复出现的行为模式。方向可以保留多个出口，但行动必须具体：身体看记录，事业看反馈，金钱看边界，关系看长期兑现。</div>';
   html += '<div class="disclaimer">※ 本页为电脑基础解读，仅供紫微斗数文化体验与娱乐参考，不替代医疗、心理、法律、投资等专业建议</div>';
   html += reportProfileAction();
   return html;
