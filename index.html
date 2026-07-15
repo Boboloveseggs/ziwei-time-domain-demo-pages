@@ -2934,7 +2934,7 @@ function updateHudVisibility(){
   var titleHud = document.getElementById('title');
   var birthSummary = document.getElementById('birthSummary');
   var modeToggle = document.getElementById('modeToggle');
-  var shapeCanChange = state.current === 'report-choice' || state.current === 'report-view' || state.current === 'workstation';
+  var shapeCanChange = state.current === 'intro' || state.current === 'birth-input' || state.current === 'report-choice' || state.current === 'report-view' || state.current === 'workstation';
   var focusedView = state.current === 'report-view' || state.current === 'profile' || state.current === 'interpret' || state.current === 'workstation';
   titleHud.classList.toggle('hidden',focusedView);
   hint.classList.toggle('hidden',focusedView);
@@ -2972,7 +2972,7 @@ function updateModeToggleLabel(){
 }
 
 function toggleChartShape(){
-  if(state.current !== 'report-choice' && state.current !== 'report-view' && state.current !== 'workstation') return;
+  if(state.current !== 'intro' && state.current !== 'birth-input' && state.current !== 'report-choice' && state.current !== 'report-view' && state.current !== 'workstation') return;
   if(state.current === 'workstation') releaseWorkstationPalaceLock();
   if(state.current === 'report-view') clearMobileLayerFocus();
   state.chartShape = state.chartShape === 'flat' ? 'spiral' : 'flat';
