@@ -323,11 +323,12 @@
   .sample-notice-kicker{margin:0 0 10px;color:var(--accent);font:700 9px/1.3 ui-monospace,Consolas,monospace;letter-spacing:.18em;text-transform:uppercase;}
   #sampleReportNotice h2{margin:0;font:600 27px/1.35 "Songti SC","SimSun",serif;letter-spacing:.06em;}
   #sampleReportNotice section > p:not(.sample-notice-kicker){margin:14px 0 0;color:var(--ink-dim);font-size:11px;line-height:1.8;}
+  #sampleReportNotice .sample-notice-lead{padding:13px 15px;border-left:3px solid var(--accent);background:rgba(143,67,57,.055);color:var(--ink) !important;font-size:12px !important;}
   .sample-notice-facts{display:grid;gap:8px;margin-top:20px;padding:15px;border:1px solid var(--line);background:#fffaf3;}
   .sample-notice-facts span{display:grid;grid-template-columns:70px 1fr;gap:8px;color:var(--ink-dim);font-size:10px;line-height:1.65;}
   .sample-notice-facts strong{color:var(--ink);font-weight:600;}
   .sample-notice-wait{color:var(--accent) !important;}
-  #acknowledgeSampleReport{width:100%;margin-top:22px;padding:13px 16px;border:0;border-radius:5px;color:#fcfaf5;background:var(--accent);font:12px/1.2 inherit;letter-spacing:.06em;cursor:pointer;}
+  #acknowledgeSampleReport{width:100%;margin-top:22px;padding:13px 16px;border:0;border-radius:5px;color:#fcfaf5;background:var(--accent);font:12px/1.45 inherit;letter-spacing:.04em;cursor:pointer;}
   .sample-apply-cta{margin:36px 0 10px;padding:24px;border:1px solid rgba(143,67,57,.32);border-radius:8px;background:#fff8ed;text-align:center;}
   .sample-apply-cta .eyebrow{margin-bottom:7px;color:var(--accent);font:700 9px/1.3 ui-monospace,Consolas,monospace;letter-spacing:.16em;text-transform:uppercase;}
   .sample-apply-cta h3{margin:0;font:600 20px/1.45 "Songti SC","SimSun",serif;letter-spacing:.06em;}
@@ -1403,16 +1404,16 @@
 </div>
 
 <div id="sampleReportNotice" aria-hidden="true">
-  <section role="dialog" aria-modal="true" aria-labelledby="sampleReportNoticeTitle">
-    <p class="sample-notice-kicker">Sample report</p>
-    <h2 id="sampleReportNoticeTitle">先看完整大报告模板</h2>
-    <p>下面的详细文字只用于浏览报告的结构、表达方式和内容深度，不是根据你本次出生资料生成的个人大报告。浏览模板不需要邮箱。</p>
+  <section role="alertdialog" aria-modal="true" aria-labelledby="sampleReportNoticeTitle" aria-describedby="sampleReportNoticeDescription">
+    <p class="sample-notice-kicker">必须确认 · Sample report</p>
+    <h2 id="sampleReportNoticeTitle">重要提示：这不是你的个人报告</h2>
+    <p class="sample-notice-lead" id="sampleReportNoticeDescription">左侧仍是你本次排出的真实命盘，但下面即将展示的详细文字是固定样本，不是根据你的出生资料生成的个人报告。</p>
     <div class="sample-notice-facts">
       <span><strong>真实部分</strong>刚才按出生年月日、时间和性别生成的命盘</span>
       <span><strong>样本部分</strong>进入报告后展示的详细解读文字与案例</span>
     </div>
-    <p class="sample-notice-wait">个人专属大报告需要人工制作，约需24～48小时，完成后通过邮箱通知。</p>
-    <button id="acknowledgeSampleReport" type="button">继续浏览完整模板</button>
+    <p class="sample-notice-wait">个人专属的专业版与大白话版，需要看过模板后再申请人工制作，约需24～48小时。</p>
+    <button id="acknowledgeSampleReport" type="button">我已知晓：下面是固定样本，不是我的报告</button>
   </section>
 </div>
 
@@ -2114,7 +2115,7 @@ function buildReport(chart, type){
     + '<section class="combined-report" id="totalReportStart" data-report-section="total">'
     + '<div class="combined-report-intro"><div class="eyebrow">SAMPLE · 完整成品模板</div><h2>完整大报告呈现示例</h2>'
     + '<p>这是固定案例的完整样本，用来展示篇幅、结构和大白话表达方式；不对应你刚生成的真实命盘，也不需要填写邮箱。</p></div>'
-    + '<div class="report-callout"><strong>请注意：</strong>左侧仍是你本次排出的真实命盘，以下详细文字是固定样本。个人专属的专业版与大白话版，需要看过模板后再申请人工制作。</div>'
+    + '<div class="report-callout"><strong>固定样本 · 已确认：</strong>以下详细文字不是你的个人报告，只用于展示完整报告的呈现方式。</div>'
     + fullReport + reportApplicationAction() + reportProfileAction() + '</section>';
 }
 
@@ -6582,10 +6583,15 @@ document.getElementById('copyReportStatus').addEventListener('click',function(){
 document.getElementById('continueAfterReportRequest').addEventListener('click',continueAfterReportRequest);
 document.getElementById('acknowledgeSampleReport').addEventListener('click',hideSampleReportNotice);
 document.addEventListener('keydown',function(event){
+  if(document.getElementById('sampleReportNotice').classList.contains('visible')){
+    if(event.key === 'Escape' || event.key === 'Tab'){
+      event.preventDefault();
+      document.getElementById('acknowledgeSampleReport').focus();
+    }
+    return;
+  }
   if(event.key === 'Escape' && document.getElementById('reportRequestPanel').classList.contains('visible')){
     closeReportRequestPanel();
-  }else if(event.key === 'Escape' && document.getElementById('sampleReportNotice').classList.contains('visible')){
-    hideSampleReportNotice();
   }
 });
 
