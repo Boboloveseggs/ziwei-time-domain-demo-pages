@@ -307,8 +307,30 @@
   #continueFeedback strong{font-weight:600;color:#fff;}
   #continueFeedback span{color:rgba(252,250,245,.76);}
   #continueFeedback.visible{opacity:1;transform:translate(-50%,0);}
+  #sampleReportNotice{
+    position:fixed;inset:0;z-index:45;display:grid;place-items:center;padding:22px;
+    opacity:0;pointer-events:none;background:rgba(48,38,31,.42);backdrop-filter:blur(7px);
+    transition:opacity .25s ease;
+  }
+  #sampleReportNotice.visible{opacity:1;pointer-events:auto;}
+  #sampleReportNotice > section{
+    width:min(540px,100%);padding:32px;border:1px solid rgba(143,67,57,.28);border-radius:8px;
+    background:#fbf8f1;box-shadow:0 28px 90px rgba(43,34,27,.22);
+  }
+  .sample-notice-kicker{margin:0 0 10px;color:var(--accent);font:700 9px/1.3 ui-monospace,Consolas,monospace;letter-spacing:.18em;text-transform:uppercase;}
+  #sampleReportNotice h2{margin:0;font:600 27px/1.35 "Songti SC","SimSun",serif;letter-spacing:.06em;}
+  #sampleReportNotice section > p:not(.sample-notice-kicker){margin:14px 0 0;color:var(--ink-dim);font-size:11px;line-height:1.8;}
+  .sample-notice-facts{display:grid;gap:8px;margin-top:20px;padding:15px;border:1px solid var(--line);background:#fffaf3;}
+  .sample-notice-facts span{display:grid;grid-template-columns:70px 1fr;gap:8px;color:var(--ink-dim);font-size:10px;line-height:1.65;}
+  .sample-notice-facts strong{color:var(--ink);font-weight:600;}
+  .sample-notice-wait{color:var(--accent) !important;}
+  #acknowledgeSampleReport{width:100%;margin-top:22px;padding:13px 16px;border:0;border-radius:5px;color:#fcfaf5;background:var(--accent);font:12px/1.2 inherit;letter-spacing:.06em;cursor:pointer;}
   @media (max-width:700px){
     #continueFeedback{top:58px;width:max-content;max-width:calc(100vw - 28px);padding:9px 12px;font-size:10px;}
+    #sampleReportNotice{padding:15px;}
+    #sampleReportNotice > section{padding:25px 21px;}
+    #sampleReportNotice h2{font-size:23px;}
+    .sample-notice-facts span{grid-template-columns:62px 1fr;}
   }
   .report-btn{
     width:200px;padding:18px 24px;
@@ -1362,6 +1384,20 @@
 
 <div id="continueFeedback" role="status" aria-live="polite" aria-atomic="true">
   <strong>已跳过申请</strong><span>正在进入三层命盘全览</span>
+</div>
+
+<div id="sampleReportNotice" aria-hidden="true">
+  <section role="dialog" aria-modal="true" aria-labelledby="sampleReportNoticeTitle">
+    <p class="sample-notice-kicker">Sample report</p>
+    <h2 id="sampleReportNoticeTitle">当前展示的是样本报告</h2>
+    <p>下面的详细文字只用于浏览报告的结构、表达方式和内容深度，不是根据你本次出生资料生成的个人大报告。</p>
+    <div class="sample-notice-facts">
+      <span><strong>真实部分</strong>刚才按出生年月日、时间和性别生成的命盘</span>
+      <span><strong>样本部分</strong>进入报告后展示的详细解读文字与案例</span>
+    </div>
+    <p class="sample-notice-wait">个人专属大报告需要人工制作，约需24～48小时，完成后通过邮箱通知。</p>
+    <button id="acknowledgeSampleReport" type="button">我知道了，继续浏览样本</button>
+  </section>
 </div>
 
 <div id="reportRequestBackdrop" aria-hidden="true"></div>
@@ -6054,6 +6090,7 @@ function workstationBackToProfile(){
 }
 
 function backToChoice(){
+  hideSampleReportNotice(false);
   document.body.classList.remove('report-split');
   document.body.classList.remove('report-single-layer');
   document.body.classList.remove('report-overview');
@@ -6363,6 +6400,21 @@ function continueWithoutReportRequest(reportSubmitted){
   continueFeedbackTimer = window.setTimeout(function(){
     feedback.classList.remove('visible');
   },2600);
+  showSampleReportNotice();
+}
+
+function showSampleReportNotice(){
+  var notice = document.getElementById('sampleReportNotice');
+  notice.classList.add('visible');
+  notice.setAttribute('aria-hidden','false');
+  window.setTimeout(function(){ document.getElementById('acknowledgeSampleReport').focus(); },80);
+}
+
+function hideSampleReportNotice(restoreFocus){
+  var notice = document.getElementById('sampleReportNotice');
+  notice.classList.remove('visible');
+  notice.setAttribute('aria-hidden','true');
+  if(restoreFocus !== false) document.getElementById('reportBack').focus();
 }
 
 function closeReportRequestPanel(restoreFocus){
@@ -6473,9 +6525,12 @@ document.getElementById('sendReportCode').addEventListener('click',function(){ v
 document.getElementById('submitReportRequest').addEventListener('click',function(){ void createReportRequest(); });
 document.getElementById('copyReportStatus').addEventListener('click',function(){ void copyReportStatusUrl(); });
 document.getElementById('continueAfterReportRequest').addEventListener('click',continueAfterReportRequest);
+document.getElementById('acknowledgeSampleReport').addEventListener('click',hideSampleReportNotice);
 document.addEventListener('keydown',function(event){
   if(event.key === 'Escape' && document.getElementById('reportRequestPanel').classList.contains('visible')){
     closeReportRequestPanel();
+  }else if(event.key === 'Escape' && document.getElementById('sampleReportNotice').classList.contains('visible')){
+    hideSampleReportNotice();
   }
 });
 
@@ -6589,6 +6644,7 @@ window.__ZIWEI_FLOW_TEST__ = {
     if(state.current === 'report-choice'){
       state.reportType = type || 'plain';
       setState('report-view');
+      showSampleReportNotice();
     }
     return state.current;
   },
