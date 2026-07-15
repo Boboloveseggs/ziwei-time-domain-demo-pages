@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
 <title>紫微时域 · 人生螺旋图</title>
+<script src="./iztro.min.js"></script>
 <style>
   :root{
     --paper-0:#FCFAF5;
@@ -94,6 +95,11 @@
     pointer-events:none;
   }
   #birthPanel.visible{opacity:1;transform:translateX(0);pointer-events:auto;}
+  @media (min-width:781px){
+    #birthPanel.has-saved-profile{justify-content:flex-start;padding-top:34px;}
+    #birthPanel.has-saved-profile .hero-sub{margin-bottom:24px;}
+    #birthPanel.has-saved-profile #savedProfileCard{margin:0 0 18px;}
+  }
   #birthPanel .hero-zh{
     font-family:"Songti SC","SimSun",serif;
     font-size:30px;font-weight:600;letter-spacing:0.12em;
@@ -108,6 +114,23 @@
     margin-bottom:10px;margin-top:18px;
   }
   #birthPanel .field-label:first-of-type{margin-top:0;}
+  #savedProfileCard{
+    display:none;grid-template-columns:1fr auto;gap:6px 14px;align-items:center;
+    margin:-22px 0 22px;padding:13px 14px;border:1px solid rgba(143,67,57,.24);
+    border-radius:7px;background:rgba(252,250,245,.8);
+  }
+  #savedProfileCard.visible{display:grid;}
+  .saved-profile-kicker{color:var(--accent);font-size:9px;letter-spacing:.16em;text-transform:uppercase;}
+  #savedProfileSummary{display:block;margin-top:4px;color:var(--ink);font-size:11px;line-height:1.55;}
+  #resumeSavedProfile{
+    grid-column:2;grid-row:1 / span 2;padding:10px 12px;border:1px solid var(--accent);border-radius:5px;
+    color:var(--accent);background:transparent;font:11px/1.3 inherit;cursor:pointer;
+  }
+  #resumeSavedProfile:hover,#resumeSavedProfile:focus-visible{color:#fff;background:var(--accent);outline:none;}
+  #forgetSavedProfile{
+    justify-self:start;padding:0;border:0;background:transparent;color:var(--ink-dim);
+    font:9px/1.4 inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer;
+  }
 
   .wheel-row{
     display:flex;gap:8px;margin-bottom:4px;
@@ -141,10 +164,12 @@
     overflow-y:scroll;overflow-x:hidden;
     scroll-snap-type:y mandatory;
     -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
     scrollbar-width:none;
     padding:60px 0;
-    z-index:1;
+    z-index:1;cursor:grab;user-select:none;
   }
+  .wheel-scroll.dragging{cursor:grabbing;scroll-snap-type:none;}
   .wheel-scroll::-webkit-scrollbar{display:none;}
   .wheel-item{
     height:42px;line-height:42px;text-align:center;
@@ -161,6 +186,26 @@
     font-size:10px;color:var(--ink-dim);letter-spacing:0.2em;z-index:4;
     pointer-events:none;
   }
+  .wheel-help{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    margin:-2px 0 10px;color:var(--ink-dim);font-size:9px;line-height:1.5;
+    letter-spacing:.06em;
+  }
+  .wheel-help strong{color:var(--accent);font-weight:500;}
+  .wheel-steppers{
+    position:absolute;top:50%;right:4px;z-index:5;
+    display:grid;gap:3px;transform:translateY(-50%);
+  }
+  .wheel-step{
+    display:grid;place-items:center;width:23px;height:20px;padding:0;
+    border:1px solid rgba(143,67,57,.28);border-radius:5px;
+    background:rgba(252,250,245,.88);color:var(--accent);
+    font:10px/1 system-ui,sans-serif;cursor:pointer;
+    box-shadow:0 2px 8px rgba(61,48,37,.06);
+    transition:background .18s ease,border-color .18s ease,transform .18s ease;
+  }
+  .wheel-step:hover,.wheel-step:focus-visible{background:#fff;border-color:var(--accent);outline:none;}
+  .wheel-step:active{transform:scale(.92);}
 
   .toggle-row{display:flex;gap:12px;margin-top:8px;}
   .toggle-btn{
@@ -190,16 +235,81 @@
     margin-top:16px;font-size:10.5px;color:var(--ink-dim);
     text-align:center;letter-spacing:0.05em;line-height:1.6;
   }
+  #birthPanel .mock-note.working{color:var(--accent);}
+  #birthPanel .mock-note.error{color:#983d34;font-weight:600;}
 
-  /* ---------- 报告选择按钮 ---------- */
+  .lunar-leap-row{
+    display:none;align-items:center;gap:9px;margin-top:10px;
+    color:var(--ink-dim);font-size:11px;cursor:pointer;
+  }
+  .lunar-leap-row.visible{display:flex;}
+  .lunar-leap-row input{accent-color:var(--accent);}
+
+  /* ---------- 人工报告申请入口 ---------- */
   #reportChoice{
     position:fixed;z-index:8;left:50%;bottom:clamp(24px,4vh,42px);
     transform:translate(-50%,60px);
-    display:flex;gap:20px;
+    width:min(560px,calc(100vw - 36px));
     opacity:0;pointer-events:none;
     transition:opacity 0.7s ease, transform 0.7s cubic-bezier(.22,.72,.20,1);
   }
   #reportChoice.visible{opacity:1;transform:translate(-50%,0);pointer-events:auto;}
+  .report-request-invite{
+    display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center;
+    padding:20px 22px;border:1px solid var(--line);border-radius:8px;
+    background:rgba(252,250,245,.94);backdrop-filter:blur(16px);
+    box-shadow:0 16px 46px rgba(61,48,37,.12);
+  }
+  .report-pair{display:flex;align-items:center;gap:8px;margin-bottom:9px;}
+  .report-slip{
+    padding:4px 8px;border:1px solid rgba(143,67,57,.32);border-radius:2px;
+    color:var(--accent);font-size:9px;letter-spacing:.12em;
+  }
+  .report-pair i{width:18px;height:1px;background:var(--line);}
+  .report-invite-title{
+    margin:0;font-family:"Songti SC","SimSun",serif;
+    color:var(--ink);font-size:17px;font-weight:600;letter-spacing:.08em;
+  }
+  .report-invite-copy{margin:5px 0 0;color:var(--ink-dim);font-size:11px;line-height:1.6;}
+  .choice-quick-actions{display:flex;align-items:center;gap:14px;margin-top:11px;}
+  .choice-quick-actions button{
+    padding:0 0 3px;border:0;border-bottom:1px solid var(--line);background:transparent;
+    color:var(--ink-dim);font:10px/1.35 inherit;letter-spacing:.05em;cursor:pointer;
+  }
+  .choice-quick-actions #openProfileFromChoice{color:var(--accent);border-color:rgba(143,67,57,.45);}
+  .choice-quick-actions button:hover,.choice-quick-actions button:focus-visible{color:var(--ink);border-color:var(--accent);outline:none;}
+  #openReportRequest{
+    min-width:132px;padding:13px 16px;border:0;border-radius:5px;
+    color:#FCFAF5;background:var(--accent);font-family:inherit;font-size:12px;
+    letter-spacing:.08em;cursor:pointer;box-shadow:0 8px 20px rgba(143,67,57,.2);
+  }
+  #openReportRequest:hover{transform:translateY(-1px);}
+  .report-invite-actions{display:grid;gap:7px;min-width:154px;}
+  #continueWithoutReport{
+    width:100%;padding:10px 12px;border:1px solid #d1ccc5;border-radius:5px;
+    background:#ddd9d4;color:#4f4a45;font-family:inherit;font-size:10px;
+    letter-spacing:.05em;cursor:pointer;box-shadow:0 3px 10px rgba(61,48,37,.08);
+    transition:color .2s ease,border-color .2s ease,background .2s ease,transform .15s ease,box-shadow .2s ease;
+  }
+  #continueWithoutReport:hover,#continueWithoutReport:focus-visible{
+    color:#302d2a;border-color:#aaa39b;background:#d1ccc6;outline:none;
+    box-shadow:0 6px 16px rgba(61,48,37,.13);transform:translateY(-1px);
+  }
+  #continueWithoutReport:active{transform:translateY(0);box-shadow:0 2px 7px rgba(61,48,37,.1);}
+  #continueFeedback{
+    position:fixed;z-index:32;top:18px;left:50%;
+    display:flex;align-items:center;gap:9px;max-width:calc(100vw - 220px);
+    padding:10px 14px;border:1px solid rgba(252,250,245,.25);border-radius:999px;
+    color:#fcfaf5;background:rgba(70,64,58,.94);box-shadow:0 12px 34px rgba(35,29,24,.18);
+    font-size:11px;letter-spacing:.04em;opacity:0;pointer-events:none;
+    transform:translate(-50%,-14px);transition:opacity .25s ease,transform .35s cubic-bezier(.22,.72,.20,1);
+  }
+  #continueFeedback strong{font-weight:600;color:#fff;}
+  #continueFeedback span{color:rgba(252,250,245,.76);}
+  #continueFeedback.visible{opacity:1;transform:translate(-50%,0);}
+  @media (max-width:700px){
+    #continueFeedback{top:58px;width:max-content;max-width:calc(100vw - 28px);padding:9px 12px;font-size:10px;}
+  }
   .report-btn{
     width:200px;padding:18px 24px;
     border:1px solid var(--line);
@@ -225,6 +335,80 @@
     font-size:11px;color:var(--ink-dim);letter-spacing:0.1em;
   }
   .report-btn.primary .btn-title{color:var(--accent);}
+
+  #reportRequestBackdrop{
+    position:fixed;inset:0;z-index:38;opacity:0;pointer-events:none;
+    background:rgba(48,38,31,.28);backdrop-filter:blur(5px);
+    transition:opacity .3s ease;
+  }
+  #reportRequestBackdrop.visible{opacity:1;pointer-events:auto;}
+  #reportRequestPanel{
+    position:fixed;z-index:39;top:0;right:0;width:min(500px,94vw);height:100svh;
+    box-sizing:border-box;overflow:auto;padding:36px clamp(24px,4vw,48px) 44px;
+    color:var(--ink);background:rgba(249,246,239,.985);
+    border-left:1px solid var(--line);box-shadow:-24px 0 70px rgba(61,48,37,.16);
+    transform:translateX(105%);transition:transform .48s cubic-bezier(.22,.72,.20,1);
+  }
+  #reportRequestPanel.visible{transform:translateX(0);}
+  .request-close{
+    position:absolute;top:20px;right:22px;width:34px;height:34px;padding:0;
+    border:1px solid var(--line);border-radius:50%;color:var(--ink-dim);
+    background:transparent;font-size:20px;cursor:pointer;
+  }
+  .request-kicker{margin:0 0 10px;color:var(--accent);font-size:10px;letter-spacing:.16em;text-transform:uppercase;}
+  .request-title{margin:0;font-family:"Songti SC","SimSun",serif;font-size:29px;font-weight:600;letter-spacing:.05em;}
+  .request-lead{margin:13px 0 26px;color:var(--ink-dim);font-size:12px;line-height:1.8;}
+  .request-editions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:26px;}
+  .request-edition{padding:13px;border:1px solid var(--line);background:rgba(255,255,255,.36);}
+  .request-edition strong{display:block;font-family:"Songti SC","SimSun",serif;font-size:14px;}
+  .request-edition span{display:block;margin-top:5px;color:var(--ink-dim);font-size:9px;line-height:1.5;}
+  .request-field{display:grid;gap:7px;margin-top:16px;}
+  .request-field > span{font-size:11px;color:var(--ink-dim);}
+  .request-field input{
+    box-sizing:border-box;width:100%;padding:13px 14px;border:1px solid var(--line);
+    border-radius:4px;color:var(--ink);background:#fffdf8;font:13px/1.4 inherit;outline:none;
+  }
+  .request-field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(143,67,57,.08);}
+  .verification-row{display:grid;grid-template-columns:1fr auto;gap:8px;}
+  #sendReportCode{
+    padding:0 14px;border:1px solid var(--line);border-radius:4px;
+    color:var(--accent);background:transparent;font:11px/1.2 inherit;cursor:pointer;
+  }
+  #sendReportCode:disabled{opacity:.55;cursor:wait;}
+  #reportDebugCode{
+    display:none;margin:9px 0 0;padding:9px 11px;border-left:2px solid var(--blue);
+    color:var(--ink-dim);background:rgba(107,129,150,.08);font-size:10px;line-height:1.6;
+  }
+  #reportDebugCode.visible{display:block;}
+  .request-consent{
+    display:grid;grid-template-columns:auto 1fr;gap:9px;margin-top:20px;
+    color:var(--ink-dim);font-size:10px;line-height:1.65;cursor:pointer;
+  }
+  .request-consent input{margin-top:3px;accent-color:var(--accent);}
+  #submitReportRequest{
+    width:100%;margin-top:20px;padding:14px 18px;border:0;border-radius:5px;
+    color:#FCFAF5;background:var(--accent);font-family:"Songti SC","SimSun",serif;
+    font-size:14px;letter-spacing:.12em;cursor:pointer;
+  }
+  #submitReportRequest:disabled{opacity:.58;cursor:wait;}
+  #reportRequestMessage{min-height:18px;margin:10px 0 0;color:var(--accent);font-size:10px;line-height:1.6;}
+  .request-disclaimer{margin:24px 0 0;padding-top:18px;border-top:1px solid var(--line);color:var(--ink-dim);font-size:9px;line-height:1.7;}
+  #reportRequestSuccess{display:none;}
+  #reportRequestSuccess.visible{display:block;}
+  #reportRequestForm.hidden{display:none;}
+  .success-mark{
+    display:grid;width:62px;height:62px;margin:18px 0 24px;place-items:center;
+    border:1px solid var(--accent);border-radius:50%;color:var(--accent);
+    font-family:"Songti SC","SimSun",serif;font-size:14px;transform:rotate(5deg);
+  }
+  .success-task{margin:22px 0;padding:16px;border:1px solid var(--line);background:#fffaf3;}
+  .success-task span{display:block;color:var(--ink-dim);font-size:9px;}
+  .success-task strong{display:block;margin-top:7px;font:600 15px/1.2 ui-monospace,Consolas,monospace;letter-spacing:.05em;}
+  #openReportStatus{
+    display:flex;min-height:46px;align-items:center;justify-content:center;border-radius:5px;
+    color:#FCFAF5;background:var(--accent);font-size:12px;text-decoration:none;
+  }
+  #copyReportStatus{width:100%;margin-top:9px;padding:12px;border:1px solid var(--line);border-radius:5px;color:var(--ink);background:transparent;font:11px/1.2 inherit;cursor:pointer;}
 
   /* ---------- 报告视图 ---------- */
   #reportView{
@@ -481,6 +665,15 @@
     font-weight:600;letter-spacing:.12em;margin:0 0 10px;
   }
   .profile-summary{font-size:13px;line-height:1.8;color:var(--ink-dim);margin:0 0 34px;}
+  .profile-local-note{
+    display:flex;align-items:center;justify-content:space-between;gap:18px;
+    margin:-18px 0 26px;padding:11px 0;border-top:1px solid var(--line);
+    color:var(--ink-dim);font-size:10px;line-height:1.6;
+  }
+  #clearSavedProfile{
+    flex:0 0 auto;padding:5px 0;border:0;border-bottom:1px solid var(--line);
+    background:transparent;color:var(--ink-dim);font:10px/1.2 inherit;cursor:pointer;
+  }
   .profile-list{border-top:1px solid var(--line);}
   .profile-row{
     width:100%;display:flex;align-items:center;justify-content:space-between;
@@ -775,15 +968,24 @@
       justify-content:flex-end;
       background:linear-gradient(0deg, var(--paper-0) 60%, rgba(252,250,245,0) 100%);
     }
+    #birthPanel.has-saved-profile{max-height:100svh;justify-content:flex-start;overflow-y:auto;}
     #birthSummary{top:66px;max-width:90vw;font-size:9px;white-space:normal;line-height:1.5;}
     #birthPanel .hero-zh{font-size:22px;}
     #birthPanel .hero-sub{margin-bottom:24px;font-size:10px;}
+    #savedProfileCard{margin:-10px 0 14px;}
     .wheel-col{height:140px;}
     .wheel-item{height:38px;line-height:38px;font-size:15px;}
     .wheel-item.selected{font-size:17px;}
     .wheel-col .wheel-marker{height:38px;}
     #submitBirth{margin-top:24px;padding:14px;font-size:14px;}
-    #reportChoice{flex-direction:column;gap:12px;bottom:28px;width:86%;}
+    #reportChoice{bottom:20px;width:calc(100% - 28px);}
+    .report-request-invite{grid-template-columns:1fr;padding:15px 16px;gap:11px;}
+    .report-invite-title{font-size:14px;}
+    .report-invite-copy{font-size:9px;}
+    .choice-quick-actions{justify-content:space-between;}
+    .report-invite-actions{width:100%;min-width:0;grid-template-columns:1fr 1fr;}
+    #openReportRequest{width:100%;min-width:0;padding:11px 14px;}
+    #continueWithoutReport{padding:10px 8px;}
     .report-btn{width:100%;padding:14px 20px;}
     .report-btn .btn-title{font-size:15px;}
     .report-section{padding:28px 18px 40px;}
@@ -796,6 +998,7 @@
     .rel-grid{grid-template-columns:repeat(2, 1fr);}
     .profile-shell{padding:82px 20px 42px;}
     .profile-title{font-size:25px;}
+    .profile-local-note{align-items:flex-start;}
     .workstation-title{top:20px;font-size:15px;}
     .workstation-status{top:72px;width:82%;}
     .workstation-rail{top:auto;bottom:12px;transform:none;width:calc(50% - 16px);padding:7px 0;background:rgba(252,250,245,.9);}
@@ -810,6 +1013,12 @@
     #scrollCue .cue-title{font-size:14px;}
     #currentShortcut{right:12px;bottom:88px;}
     #currentShortcut strong{font-size:11px;}
+  }
+
+  @media (max-width:620px){
+    #reportRequestPanel{top:auto;bottom:0;width:100%;height:min(88svh,760px);border-left:0;border-top:1px solid var(--line);transform:translateY(105%);}
+    #reportRequestPanel.visible{transform:translateY(0);}
+    .request-title{font-size:24px;}
   }
 
   @media (max-width:1120px){
@@ -1062,10 +1271,28 @@
   <div class="hero-zh">出生时间</div>
   <div class="hero-sub">ENTER BIRTH TIME</div>
 
+  <section id="savedProfileCard" aria-label="上次保存的命盘">
+    <div>
+      <span class="saved-profile-kicker">Last saved chart</span>
+      <strong id="savedProfileSummary">—</strong>
+    </div>
+    <button id="resumeSavedProfile" type="button">继续上次命盘</button>
+    <button id="forgetSavedProfile" type="button">删除本机记录</button>
+  </section>
+
   <div class="field-label">公历 / 农历</div>
   <div class="toggle-row" id="calToggle">
     <div class="toggle-btn active" data-cal="solar">公历</div>
     <div class="toggle-btn" data-cal="lunar">农历</div>
+  </div>
+  <label class="lunar-leap-row" id="lunarLeapRow">
+    <input type="checkbox" id="lunarLeapMonth" />
+    <span>这是农历闰月</span>
+  </label>
+
+  <div class="wheel-help">
+    <span>鼠标<strong>按住上下拖</strong> · 滚轮快选</span>
+    <span>小箭头可长按</span>
   </div>
 
   <div class="field-label">年 · 月 · 日</div>
@@ -1108,20 +1335,83 @@
   </div>
 
   <button id="submitBirth">进 入 时 域</button>
-  <div class="mock-note">固定体验盘 · 2026.07.14 06:53 · 女<br/>仅作产品交互与视觉演示</div>
+  <div class="mock-note" id="birthPanelNote" role="status" aria-live="polite">本地真实排盘 · 公历／农历可切换<br/>排盘完成后再决定是否申请完整报告</div>
 </div>
 
-<!-- 报告选择 -->
+<!-- 人工报告申请入口 -->
 <div id="reportChoice">
-  <button class="report-btn" type="button" data-type="professional">
-    <div class="btn-title">专业报告</div>
-    <div class="btn-sub">术语完整 · 依据明确</div>
-  </button>
-  <button class="report-btn primary" type="button" data-type="plain">
-    <div class="btn-title">通俗报告</div>
-    <div class="btn-sub">大白话 · 行动建议</div>
-  </button>
+  <section class="report-request-invite" aria-labelledby="reportInviteTitle">
+    <div>
+      <div class="report-pair" aria-hidden="true">
+        <span class="report-slip">专业版</span><i></i><span class="report-slip">大白话版</span>
+      </div>
+      <h2 class="report-invite-title" id="reportInviteTitle">申请两份完整人工报告</h2>
+      <p class="report-invite-copy">预计24～48小时内完成 · 完成后通过邮箱通知</p>
+      <div class="choice-quick-actions">
+        <button id="openProfileFromChoice" type="button">进入个人中心</button>
+        <button id="restartBirthInput" type="button">重新输入出生资料</button>
+      </div>
+    </div>
+    <div class="report-invite-actions">
+      <button id="openReportRequest" type="button">申请完整报告</button>
+      <button id="continueWithoutReport" type="button">先不申请，继续往后看 →</button>
+    </div>
+  </section>
 </div>
+
+<div id="continueFeedback" role="status" aria-live="polite" aria-atomic="true">
+  <strong>已跳过申请</strong><span>正在进入三层命盘全览</span>
+</div>
+
+<div id="reportRequestBackdrop" aria-hidden="true"></div>
+<aside id="reportRequestPanel" role="dialog" aria-modal="true" aria-labelledby="reportRequestTitle" aria-hidden="true">
+  <button class="request-close" id="closeReportRequest" type="button" aria-label="关闭报告申请">×</button>
+
+  <div id="reportRequestForm">
+    <p class="request-kicker">Manual report request</p>
+    <h2 class="request-title" id="reportRequestTitle">把命盘交给人工解读</h2>
+    <p class="request-lead">你的命盘已经生成。提交申请后，我们会以同一份排盘资料制作两种表达版本，并在完成时只发送一封通知邮件。</p>
+
+    <div class="request-editions" aria-label="报告版本">
+      <div class="request-edition"><strong>专业版</strong><span>保留命宫、星曜、四化与运限结构</span></div>
+      <div class="request-edition"><strong>大白话版</strong><span>把术语翻译成观察方式与行动提示</span></div>
+    </div>
+
+    <label class="request-field">
+      <span>接收完成通知的邮箱</span>
+      <div class="verification-row">
+        <input id="reportEmail" type="email" inputmode="email" autocomplete="email" placeholder="name@example.com" />
+        <button id="sendReportCode" type="button">发送验证码</button>
+      </div>
+    </label>
+    <div id="reportDebugCode" aria-live="polite"></div>
+
+    <label class="request-field">
+      <span>邮箱验证码</span>
+      <input id="reportEmailCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="6位验证码" />
+    </label>
+
+    <label class="request-consent">
+      <input id="reportConsent" type="checkbox" />
+      <span>我同意本服务为排盘、人工制作及交付紫微斗数文化体验报告，处理我提交的邮箱、出生日期时间、历法和性别。资料不会用于其他用途，并将在报告交付后30天内删除。若提交他人资料，我确认已经取得本人或监护人授权。</span>
+    </label>
+
+    <button id="submitReportRequest" type="button">提交人工报告申请</button>
+    <p id="reportRequestMessage" role="status" aria-live="polite"></p>
+    <p class="request-disclaimer">本服务为传统文化体验内容，仅供娱乐与自我观察参考，不替代医疗、心理、法律或投资等专业建议。你可以通过私密报告页提前删除资料。<a href="/privacy" target="_top">查看个人信息处理说明</a></p>
+  </div>
+
+  <div id="reportRequestSuccess">
+    <div class="success-mark">已收</div>
+    <p class="request-kicker">Request received</p>
+    <h2 class="request-title">报告任务已经建立</h2>
+    <p class="request-lead">预计24～48小时内完成。完成后只发送“报告已完成”通知，出生资料不会出现在邮件正文。</p>
+    <div class="success-task"><span>报告任务编号</span><strong id="reportTaskNumber">—</strong></div>
+    <a id="openReportStatus" href="#" target="_top">查看私密任务页</a>
+    <button id="copyReportStatus" type="button">复制私密链接</button>
+    <p class="request-disclaimer">请勿公开转发私密链接。报告交付30天后，链接、报告文件和出生资料会一起失效并删除。</p>
+  </div>
+</aside>
 
 <!-- 三层标签提示 -->
 <div class="three-layers-hint" id="layerHint">
@@ -1241,6 +1531,10 @@
     <div class="profile-kicker">PERSONAL TIME DOMAIN</div>
     <h1 class="profile-title">个人中心</h1>
     <p class="profile-summary" id="profileSummary">保存本次演示命盘，并从十年、年份与月份三个尺度继续查看人生螺旋。</p>
+    <div class="profile-local-note">
+      <span id="profileLocalStatus">最近一次命盘仅保存在当前浏览器，不会自动同步到后台。</span>
+      <button id="clearSavedProfile" type="button">删除本机记录</button>
+    </div>
     <div class="profile-list">
       <button class="profile-row" id="openWorkstation">
         <span><span class="profile-row-title">螺旋工位</span><span class="profile-row-copy">沿大运、年份和月份逐层定位十二宫。</span></span>
@@ -1257,6 +1551,10 @@
       <button class="profile-row" disabled>
         <span><span class="profile-row-title">继续追问</span><span class="profile-row-copy">围绕报告结论进入具体问题。</span></span>
         <span class="profile-row-state">功能预留</span>
+      </button>
+      <button class="profile-row" id="profileRestartBirth">
+        <span><span class="profile-row-title">重新输入出生资料</span><span class="profile-row-copy">返回出生时间选择器，重新生成另一张命盘。</span></span>
+        <span class="profile-row-state">重新排盘 →</span>
       </button>
     </div>
   </div>
@@ -1610,6 +1908,9 @@ function isDemoInput(input){
 }
 
 function calculateChart(){
+  if(typeof state !== 'undefined' && state && state.generatedChart){
+    return state.generatedChart;
+  }
   if(!DEMO_SAMPLE_CHART) DEMO_SAMPLE_CHART = buildDemoSampleChart();
   return DEMO_SAMPLE_CHART;
 }
@@ -1744,13 +2045,24 @@ function buildLayerStageReports(chart,type){
 }
 
 function buildReport(chart, type){
-  var fullReport = type === 'professional' ? buildProfessionalReport(chart) : buildPlainReport(chart);
-  var reportName = type === 'professional' ? '专业总报告' : '通俗总报告';
+  var showingExistingSample = !chart.isDemoSample;
+  if(showingExistingSample && !DEMO_SAMPLE_CHART) DEMO_SAMPLE_CHART = buildDemoSampleChart();
+  var fullReportChart = showingExistingSample ? DEMO_SAMPLE_CHART : chart;
+  var fullReport = type === 'professional' ? buildProfessionalReport(fullReportChart) : buildPlainReport(fullReportChart);
+  var reportName = showingExistingSample
+    ? '完整报告成品示例'
+    : (type === 'professional' ? '专业总报告' : '通俗总报告');
+  var introCopy = showingExistingSample
+    ? '上面的十二宫与三层命盘来自你刚提交的出生资料；下面暂时保留现有详细样稿，让你先看清完整报告的结构与深度。'
+    : '前三层分别回答长期、今年和当下；下面把三层叠加后，再按身体、事业钱与关系三条主线展开。';
+  var sampleNotice = showingExistingSample
+    ? '<div class="report-callout"><strong>请注意：</strong>以下是现有完整报告样例，仅展示成品形式，不对应你刚生成的真实命盘。与你本人命盘对应的专业版和大白话版，需要申请后另行制作。</div>'
+    : '';
   return buildLayerStageReports(chart,type)
     + '<section class="combined-report" id="totalReportStart" data-report-section="total">'
     + '<div class="combined-report-intro"><div class="eyebrow">FOURTH · 三层合读</div><h2>' + reportName + '</h2>'
-    + '<p>前三层分别回答长期、今年和当下；下面把三层叠加后，再按身体、事业钱与关系三条主线展开。</p></div>'
-    + fullReport + '</section>';
+    + '<p>' + introCopy + '</p></div>'
+    + sampleNotice + fullReport + '</section>';
 }
 
 function chartPalace(chart, key){
@@ -1775,7 +2087,7 @@ function inputSummary(chart){
   var calendar = input.calendar === 'lunar' ? '农历输入' : '公历输入';
   var gender = input.gender === 'female' ? '女' : '男';
   var pad = function(v){ return String(v == null ? 0 : v).padStart(2,'0'); };
-  return '固定体验盘 · ' + calendar + ' ' + input.year + '-' + pad(input.month) + '-' + pad(input.day) + ' ' + pad(input.hour) + ':' + pad(input.minute) + '，' + gender;
+  return (chart && chart.isDemoSample ? '体验预览 · ' : '真实排盘 · ') + calendar + ' ' + input.year + '-' + pad(input.month) + '-' + pad(input.day) + ' ' + pad(input.hour) + ':' + pad(input.minute) + '，' + gender;
 }
 
 function reportProfileAction(){
@@ -2338,8 +2650,9 @@ function buildPlainReport(chart){
 
 var state = {
   current: 'intro',
-  birthInput: { year:2026, month:7, day:14, hour:6, minute:53, gender:'female', calendar:'solar' },
+  birthInput: { year:2026, month:7, day:14, hour:6, minute:53, gender:'female', calendar:'solar', isLeapMonth:false },
   chart: null,
+  generatedChart: null,
   reportType: null,
   arrangingProgress: 0,
   arrangingElapsed: 0,
@@ -2354,6 +2667,86 @@ var state = {
   threeLayerElapsed: 0
 };
 var rotationHintDismissed = false;
+var LOCAL_PROFILE_KEY = 'ziwei-local-profile-v1';
+var profileReturnState = 'report-view';
+
+function readSavedLocalProfile(){
+  try{
+    var raw = window.localStorage.getItem(LOCAL_PROFILE_KEY);
+    if(!raw) return null;
+    var saved = JSON.parse(raw);
+    var input = saved && saved.input;
+    if(!input) return null;
+    var normalized = {
+      year:Number(input.year),month:Number(input.month),day:Number(input.day),
+      hour:Number(input.hour),minute:Number(input.minute),
+      gender:input.gender === 'male' ? 'male' : 'female',
+      calendar:input.calendar === 'lunar' ? 'lunar' : 'solar',
+      isLeapMonth:Boolean(input.isLeapMonth)
+    };
+    if(!Number.isInteger(normalized.year) || normalized.year < 1940 || normalized.year > 2026) return null;
+    if(!Number.isInteger(normalized.month) || normalized.month < 1 || normalized.month > 12) return null;
+    if(!Number.isInteger(normalized.day) || normalized.day < 1 || normalized.day > 31) return null;
+    if(!Number.isInteger(normalized.hour) || normalized.hour < 0 || normalized.hour > 23) return null;
+    if(!Number.isInteger(normalized.minute) || normalized.minute < 0 || normalized.minute > 59) return null;
+    return {input:normalized,savedAt:saved.savedAt || ''};
+  }catch(error){
+    return null;
+  }
+}
+
+function refreshSavedProfileCard(){
+  var card = document.getElementById('savedProfileCard');
+  var saved = readSavedLocalProfile();
+  card.classList.toggle('visible',!!saved);
+  document.getElementById('birthPanel').classList.toggle('has-saved-profile',!!saved);
+  if(saved){
+    document.getElementById('savedProfileSummary').textContent = inputSummary({input:saved.input});
+  }
+  return saved;
+}
+
+function saveLocalProfile(){
+  var input = state.chart && state.chart.input ? state.chart.input : state.birthInput;
+  try{
+    window.localStorage.setItem(LOCAL_PROFILE_KEY,JSON.stringify({
+      version:1,
+      savedAt:new Date().toISOString(),
+      input:{
+        year:input.year,month:input.month,day:input.day,hour:input.hour,minute:input.minute,
+        gender:input.gender,calendar:input.calendar,isLeapMonth:Boolean(input.isLeapMonth)
+      }
+    }));
+    refreshSavedProfileCard();
+    return true;
+  }catch(error){
+    return false;
+  }
+}
+
+function clearSavedLocalProfile(){
+  try{ window.localStorage.removeItem(LOCAL_PROFILE_KEY); }catch(error){}
+  refreshSavedProfileCard();
+  var status = document.getElementById('profileLocalStatus');
+  if(status) status.textContent = '本机保存记录已删除；当前打开的命盘在关闭页面后不会保留。';
+}
+
+function syncBirthControlsFromState(){
+  var wheels = {wheelYear:'year',wheelMonth:'month',wheelDay:'day',wheelHour:'hour',wheelMinute:'minute'};
+  Object.keys(wheels).forEach(function(id){
+    var target = document.querySelector('#' + id + ' [data-val="' + state.birthInput[wheels[id]] + '"]');
+    if(target) target.scrollIntoView({block:'center'});
+  });
+  document.querySelectorAll('#calToggle .toggle-btn').forEach(function(button){
+    button.classList.toggle('active',button.dataset.cal === state.birthInput.calendar);
+  });
+  document.querySelectorAll('#genderToggle .toggle-btn').forEach(function(button){
+    button.classList.toggle('active',button.dataset.gender === state.birthInput.gender);
+  });
+  var leap = document.getElementById('lunarLeapMonth');
+  leap.checked = Boolean(state.birthInput.isLeapMonth);
+  document.getElementById('lunarLeapRow').classList.toggle('visible',state.birthInput.calendar === 'lunar');
+}
 
 function setState(s){
   var previousCameraRadius = typeof currentCameraRadius === 'function' ? currentCameraRadius() : null;
@@ -2394,7 +2787,7 @@ function updateHudVisibility(){
   } else if(state.current === 'arranging'){
     hint.textContent = '排盘中…';
   } else if(state.current === 'report-choice'){
-    hint.textContent = '选择报告类型 · 命盘可拖动 · 鼠标滚轮缩放';
+    hint.textContent = '真实命盘已生成 · 可继续探索，或申请两份完整人工报告';
   } else if(state.current === 'report-view'){
     hint.textContent = '左侧转动三层命盘 · 右侧分层阅读报告';
   } else if(state.current === 'profile'){
@@ -2442,11 +2835,22 @@ function initWheels(){
 
 function buildWheel(id, min, max, selected){
   var el = document.getElementById(id);
+  var fieldNames = {wheelYear:'年份',wheelMonth:'月份',wheelDay:'日期',wheelHour:'小时',wheelMinute:'分钟'};
+  var fieldName = fieldNames[id] || '时间';
   var html = '';
   for(var i=min;i<=max;i++){
-    html += '<div class="wheel-item" data-val="' + i + '">' + i + '</div>';
+    html += '<div class="wheel-item" role="option" data-val="' + i + '">' + i + '</div>';
   }
   el.innerHTML = html;
+  el.tabIndex = 0;
+  el.setAttribute('role','listbox');
+  el.setAttribute('aria-label',fieldName + '滚轮');
+
+  var stepper = document.createElement('div');
+  stepper.className = 'wheel-steppers';
+  stepper.innerHTML = '<button class="wheel-step" type="button" data-dir="-1" aria-label="减小' + fieldName + '" title="向上，可长按">▲</button>'
+    + '<button class="wheel-step" type="button" data-dir="1" aria-label="增大' + fieldName + '" title="向下，可长按">▼</button>';
+  el.parentElement.appendChild(stepper);
 
   function updateSelection(){
     var items = el.querySelectorAll('.wheel-item');
@@ -2460,12 +2864,22 @@ function buildWheel(id, min, max, selected){
       var dist = Math.abs(itemCenter - centerY);
       if(dist < closestDist){ closestDist = dist; closest = item; }
       item.classList.remove('selected');
+      item.removeAttribute('aria-selected');
     });
     if(closest){
       closest.classList.add('selected');
+      closest.setAttribute('aria-selected','true');
       var key = id.replace('wheel','').toLowerCase();
       state.birthInput[key] = parseInt(closest.dataset.val, 10);
     }
+  }
+
+  function moveBy(delta, behavior){
+    var current = el.querySelector('.wheel-item.selected');
+    var value = current ? parseInt(current.dataset.val,10) : selected;
+    var next = Math.max(min,Math.min(max,value + delta));
+    var target = el.querySelector('[data-val="' + next + '"]');
+    if(target) target.scrollIntoView({behavior:behavior || 'smooth',block:'center'});
   }
 
   el.addEventListener('scroll', function(){
@@ -2474,10 +2888,77 @@ function buildWheel(id, min, max, selected){
   }, { passive:true });
 
   el.addEventListener('click', function(e){
+    if(el._dragMoved){
+      e.preventDefault();
+      return;
+    }
     var target = e.target;
     if(target.classList.contains('wheel-item')){
       target.scrollIntoView({ behavior:'smooth', block:'center' });
     }
+  });
+
+  var dragStart = null;
+  el.addEventListener('pointerdown',function(e){
+    if(e.pointerType !== 'mouse' || e.button !== 0) return;
+    dragStart = {id:e.pointerId,y:e.clientY,scrollTop:el.scrollTop};
+    el._dragMoved = false;
+    el.classList.add('dragging');
+    el.setPointerCapture(e.pointerId);
+  });
+  el.addEventListener('pointermove',function(e){
+    if(!dragStart || dragStart.id !== e.pointerId) return;
+    var delta = e.clientY - dragStart.y;
+    if(Math.abs(delta) > 3) el._dragMoved = true;
+    el.scrollTop = dragStart.scrollTop - delta;
+    e.preventDefault();
+  });
+  function finishWheelDrag(e){
+    if(!dragStart || (e.pointerId != null && dragStart.id !== e.pointerId)) return;
+    dragStart = null;
+    el.classList.remove('dragging');
+    updateSelection();
+    var snapped = el.querySelector('.wheel-item.selected');
+    if(snapped) snapped.scrollIntoView({behavior:'smooth',block:'center'});
+    setTimeout(function(){el._dragMoved = false;},0);
+  }
+  el.addEventListener('pointerup',finishWheelDrag);
+  el.addEventListener('pointercancel',finishWheelDrag);
+
+  el.addEventListener('keydown',function(e){
+    var amount = e.key === 'PageUp' || e.key === 'PageDown' ? 5 : 1;
+    if(e.key === 'ArrowUp' || e.key === 'PageUp'){
+      e.preventDefault();moveBy(-amount,'smooth');
+    }else if(e.key === 'ArrowDown' || e.key === 'PageDown'){
+      e.preventDefault();moveBy(amount,'smooth');
+    }
+  });
+
+  stepper.querySelectorAll('.wheel-step').forEach(function(button){
+    var repeatDelay = null;
+    var repeatTimer = null;
+    var repeated = false;
+    var direction = parseInt(button.dataset.dir,10);
+    function stopRepeat(){
+      clearTimeout(repeatDelay);clearInterval(repeatTimer);
+      repeatDelay = null;repeatTimer = null;
+    }
+    button.addEventListener('pointerdown',function(e){
+      if(e.pointerType === 'mouse' && e.button !== 0) return;
+      repeated = false;
+      repeatDelay = setTimeout(function(){
+        repeated = true;moveBy(direction,'auto');
+        repeatTimer = setInterval(function(){moveBy(direction,'auto');},95);
+      },360);
+    });
+    button.addEventListener('pointerup',stopRepeat);
+    button.addEventListener('pointercancel',stopRepeat);
+    button.addEventListener('pointerleave',stopRepeat);
+    button.addEventListener('click',function(e){
+      e.preventDefault();
+      if(!repeated) moveBy(direction,'smooth');
+      repeated = false;stopRepeat();
+    });
   });
 
   requestAnimationFrame(function(){
@@ -2489,12 +2970,22 @@ function buildWheel(id, min, max, selected){
 
 function initToggles(){
   var calBtns = document.querySelectorAll('#calToggle .toggle-btn');
+  var lunarLeapRow = document.getElementById('lunarLeapRow');
+  var lunarLeapMonth = document.getElementById('lunarLeapMonth');
   calBtns.forEach(function(btn){
     btn.addEventListener('click', function(){
       calBtns.forEach(function(b){b.classList.remove('active');});
       btn.classList.add('active');
       state.birthInput.calendar = btn.dataset.cal;
+      lunarLeapRow.classList.toggle('visible',state.birthInput.calendar === 'lunar');
+      if(state.birthInput.calendar !== 'lunar'){
+        lunarLeapMonth.checked = false;
+        state.birthInput.isLeapMonth = false;
+      }
     });
+  });
+  lunarLeapMonth.addEventListener('change',function(){
+    state.birthInput.isLeapMonth = lunarLeapMonth.checked;
   });
 
   var genderBtns = document.querySelectorAll('#genderToggle .toggle-btn');
@@ -5335,7 +5826,7 @@ function openReportView(){
   document.getElementById('reportContent').innerHTML = content;
   buildReportToc();
   var profileButton = document.getElementById('enterProfile');
-  if(profileButton) profileButton.addEventListener('click', openProfileView);
+  if(profileButton) profileButton.addEventListener('click', function(){ openProfileView('report-view'); });
   var scroller = getReportScroller();
   if(scroller) scroller.scrollTop = 0;
   setReportStageActive('overview');
@@ -5343,7 +5834,11 @@ function openReportView(){
   syncReportToc();
 }
 
-function openProfileView(){
+function openProfileView(returnTarget){
+  profileReturnState = typeof returnTarget === 'string'
+    ? returnTarget
+    : (state.current === 'report-choice' ? 'report-choice' : 'report-view');
+  var savedLocally = saveLocalProfile();
   var reportScroller = getReportScroller();
   reportScrollY = reportScroller ? reportScroller.scrollTop : 0;
   document.body.classList.remove('report-split');
@@ -5352,7 +5847,12 @@ function openProfileView(){
   document.body.classList.remove('report-panel-collapsed');
   document.body.classList.remove('report-total-below','total-report-reading');
   var input = state.chart && state.chart.input ? state.chart.input : state.birthInput;
-  document.getElementById('profileSummary').textContent = inputSummary({input:input}) + ' · 已保存当前演示盘。选择螺旋工位可继续切换十年、年份与月份。';
+  document.getElementById('profileSummary').textContent = inputSummary({input:input}) + ' · 已进入个人中心。选择螺旋工位可继续切换十年、年份与月份。';
+  document.getElementById('profileLocalStatus').textContent = savedLocally
+    ? '最近一次命盘仅保存在当前浏览器，不会自动同步到后台。'
+    : '当前浏览器未允许保存；关闭页面后可能需要重新输入出生资料。';
+  document.getElementById('profileBack').textContent = profileReturnState === 'report-choice' ? '← 返回命盘选择' : '← 返回报告';
+  document.getElementById('reportChoice').classList.remove('visible');
   document.getElementById('profileView').classList.add('visible');
   document.getElementById('interpretView').classList.remove('visible');
   document.getElementById('layerHint').classList.remove('visible');
@@ -5363,6 +5863,21 @@ function openProfileView(){
   state.current = 'profile';
   interactionLocked = true;
   updateHudVisibility();
+}
+
+function returnFromProfile(){
+  if(profileReturnState !== 'report-choice'){
+    returnToReport();
+    return;
+  }
+  document.getElementById('profileView').classList.remove('visible');
+  document.getElementById('interpretView').classList.remove('visible');
+  document.getElementById('workstationPanel').classList.remove('visible');
+  state.current = 'report-choice';
+  interactionLocked = false;
+  document.getElementById('reportChoice').classList.add('visible');
+  updateHudVisibility();
+  window.scrollTo(0,0);
 }
 
 function openInterpretReport(){
@@ -5572,30 +6087,394 @@ function backToChoice(){
   window.scrollTo(0, 0);
 }
 
+var birthSubmissionBusy = false;
+var reportStatusUrl = '';
+var continueFeedbackTimer = 0;
+var STATIC_GITHUB_DEMO = true;
+
+function staticPalaceKey(name){
+  var map = {
+    '命宫':'命','兄弟':'兄','夫妻':'夫','子女':'子','财帛':'财','疾厄':'疾',
+    '迁移':'迁','仆役':'友','交友':'友','官禄':'官','田宅':'田','福德':'福','父母':'父'
+  };
+  return map[name] || name.slice(0,1);
+}
+
+function staticDisplayPalaceName(name){
+  if(name === '仆役') return '交友宫';
+  return name.endsWith('宫') ? name : name + '宫';
+}
+
+function staticTimeIndex(hour){
+  return hour === 23 ? 12 : Math.ceil(hour / 2);
+}
+
+function createStaticChart(input){
+  if(!window.iztro || !window.iztro.astro){
+    throw new Error('本地排盘程序加载失败，请刷新网页后重试');
+  }
+  var date = input.year + '-' + input.month + '-' + input.day;
+  var gender = input.gender === 'female' ? '女' : '男';
+  var chart = input.calendar === 'lunar'
+    ? window.iztro.astro.byLunar(
+        date,
+        staticTimeIndex(input.hour),
+        gender,
+        Boolean(input.isLeapMonth),
+        true,
+        'zh-CN'
+      )
+    : window.iztro.astro.bySolar(date,staticTimeIndex(input.hour),gender,true,'zh-CN');
+  var shanghaiDate = new Intl.DateTimeFormat('sv-SE',{
+    timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'
+  }).format(new Date());
+  var currentMoment = new Date(shanghaiDate + 'T12:00:00+08:00');
+  var horoscope = chart.horoscope(currentMoment);
+  var palaces = chart.palaces.map(function(palace,index){
+    var majorStars = palace.majorStars.filter(function(star){ return star.type === 'major'; });
+    var minorStars = palace.majorStars.filter(function(star){ return star.type !== 'major'; })
+      .concat(palace.minorStars,palace.adjectiveStars);
+    var allStars = palace.majorStars.concat(palace.minorStars);
+    var mutagenStar = allStars.find(function(star){ return Boolean(star.mutagen); });
+    return {
+      index:index,
+      palaceKey:staticPalaceKey(palace.name),
+      palaceName:staticDisplayPalaceName(palace.name),
+      branch:palace.earthlyBranch,
+      branchGan:palace.heavenlyStem,
+      stars:majorStars.map(function(star){
+        return {name:star.name,miaoWang:star.brightness || '',hua:star.mutagen || ''};
+      }),
+      minorStars:minorStars.map(function(star){
+        return {name:star.name,miaoWang:star.brightness || '',hua:star.mutagen || ''};
+      }),
+      hua:mutagenStar ? mutagenStar.mutagen : null,
+      markers:palace.isBodyPalace ? ['身宫'] : [],
+      fullStars:majorStars.concat(minorStars).map(function(star){ return star.name; }).join('、'),
+      longLife:palace.changsheng12,
+      doctor:palace.boshi12,
+      empty:majorStars.length === 0
+    };
+  });
+  var decades = chart.palaces.map(function(palace,palaceIndex){
+    return {
+      startAge:palace.decadal.range[0],
+      endAge:palace.decadal.range[1],
+      palaceIndex:palaceIndex,
+      palaceName:staticDisplayPalaceName(palace.name)
+    };
+  }).filter(function(item){ return item.startAge <= 100; })
+    .sort(function(a,b){ return a.startAge - b.startAge; })
+    .slice(0,10)
+    .map(function(item,decade){
+      item.decade = decade;
+      return item;
+    });
+  var activeDecade = Math.max(0,decades.findIndex(function(item){
+    return item.palaceIndex === horoscope.decadal.index;
+  }));
+  var mingPalaceIndex = chart.palaces.findIndex(function(palace){ return palace.name === '命宫'; });
+  var shenGongIndex = chart.palaces.findIndex(function(palace){ return palace.isBodyPalace; });
+  var fourHua = {};
+  palaces.forEach(function(palace,index){
+    palace.stars.concat(palace.minorStars).forEach(function(star){
+      if(!star.hua) return;
+      var key = {'禄':'lu','权':'quan','科':'ke','忌':'ji'}[star.hua];
+      if(key){
+        fourHua[key] = {star:star.name,palaceIndex:index,palaceName:palace.palaceName};
+      }
+    });
+  });
+  return {
+    input:input,
+    isDemoSample:false,
+    source:'iztro@2.4.1 · GitHub 本地排盘',
+    solarDate:chart.solarDate,
+    lunarDate:chart.lunarDate,
+    chineseDate:chart.chineseDate,
+    timeName:chart.time,
+    timeRange:chart.timeRange,
+    yearGanZhi:horoscope.yearly.heavenlyStem + horoscope.yearly.earthlyBranch,
+    birthGanZhi:chart.rawDates.chineseDate.yearly.join(''),
+    fiveElementsClass:chart.fiveElementsClass,
+    soul:chart.soul,
+    body:chart.body,
+    mingPalaceIndex:mingPalaceIndex < 0 ? 0 : mingPalaceIndex,
+    shenGongIndex:shenGongIndex < 0 ? 0 : shenGongIndex,
+    palaces:palaces,
+    currentYear:Number(shanghaiDate.slice(0,4)),
+    age:horoscope.age.nominalAge,
+    majorDecadeIndex:activeDecade,
+    majorPalaceIndex:horoscope.decadal.index,
+    smallLimitIndex:horoscope.age.index,
+    yearPalaceIndex:horoscope.yearly.index,
+    monthPalaceIndex:horoscope.monthly.index,
+    majorDecades:decades,
+    fourHua:fourHua
+  };
+}
+
+async function generateRealChart(){
+  if(STATIC_GITHUB_DEMO){
+    state.generatedChart = createStaticChart(state.birthInput);
+    return state.generatedChart;
+  }
+  var response = await fetch('/api/chart',{
+    method:'POST',
+    headers:{'content-type':'application/json'},
+    body:JSON.stringify({input:state.birthInput})
+  });
+  var data = await response.json();
+  if(!response.ok) throw new Error(data.error || '真实排盘失败');
+  state.generatedChart = data.chart;
+  return data.chart;
+}
+
+async function resumeSavedProfile(){
+  if(birthSubmissionBusy) return;
+  var saved = readSavedLocalProfile();
+  if(!saved) return;
+  var button = document.getElementById('resumeSavedProfile');
+  var note = document.getElementById('birthPanelNote');
+  state.birthInput = JSON.parse(JSON.stringify(saved.input));
+  syncBirthControlsFromState();
+  birthSubmissionBusy = true;
+  button.disabled = true;
+  button.textContent = '正在打开…';
+  note.textContent = '正在恢复上次保存在本机的命盘…';
+  try{
+    await generateRealChart();
+    releaseEntryPalaceLock();
+    entryFocusProgress = 0;
+    clearSelection();
+    document.getElementById('birthPanel').classList.remove('visible');
+    interactionLocked = true;
+    setState('arranging');
+    setState('report-choice');
+    updateBirthSummary();
+    openProfileView('report-choice');
+  }catch(error){
+    note.textContent = error && error.message ? error.message : '上次命盘恢复失败，请重新输入出生资料';
+  }finally{
+    birthSubmissionBusy = false;
+    button.disabled = false;
+    button.textContent = '继续上次命盘';
+  }
+}
+
+function restartBirthInputFlow(){
+  releaseReportChoicePalaceLock();
+  releaseWorkstationPalaceLock();
+  clearSelection();
+  destroyThreeLayers();
+  restoreSpiralVisuals();
+  document.body.classList.remove('report-split','report-single-layer','report-overview','report-panel-collapsed','report-panel-full','report-panel-peek','report-total-below','total-report-reading','mobile-palace-focus');
+  document.getElementById('reportChoice').classList.remove('visible');
+  document.getElementById('reportRequestBackdrop').classList.remove('visible');
+  document.getElementById('reportRequestPanel').classList.remove('visible');
+  document.getElementById('reportRequestPanel').setAttribute('aria-hidden','true');
+  document.getElementById('reportView').classList.remove('visible');
+  document.getElementById('profileView').classList.remove('visible');
+  document.getElementById('interpretView').classList.remove('visible');
+  document.getElementById('workstationPanel').classList.remove('visible');
+  document.getElementById('layerHint').classList.remove('visible');
+  document.getElementById('scrollCue').classList.remove('visible');
+  document.getElementById('currentShortcut').classList.remove('visible');
+  hideReportToc();
+  setReportScrolling(false);
+  state.current = 'birth-input';
+  state.chartShape = 'spiral';
+  state.flatFacingProgress = 0;
+  state.spiralOffsetX = 0;
+  state.spiralOffsetY = 0;
+  liftProgress = 1;
+  interactionLocked = false;
+  document.getElementById('birthSummary').classList.remove('visible','suppressed');
+  var birthPanel = document.getElementById('birthPanel');
+  birthPanel.classList.add('visible');
+  var firstBirthField = birthPanel.querySelector('.field-label');
+  birthPanel.scrollTop = firstBirthField ? Math.max(0,firstBirthField.offsetTop - 12) : 0;
+  document.getElementById('birthPanelNote').innerHTML = '本地真实排盘 · 公历／农历可切换<br/>排盘完成后再决定是否申请完整报告';
+  document.getElementById('birthPanelNote').classList.remove('working','error');
+  syncBirthControlsFromState();
+  updateHudVisibility();
+  window.scrollTo(0,0);
+}
+
+async function submitBirthAndArrange(){
+  var button = document.getElementById('submitBirth');
+  var note = document.getElementById('birthPanelNote');
+  var panel = document.getElementById('birthPanel');
+  if(birthSubmissionBusy){
+    note.textContent = '命盘正在生成，请稍候…';
+    note.classList.add('working');
+    return state.current;
+  }
+  if(!panel.classList.contains('visible')) return state.current;
+  if(state.current !== 'birth-input') restartBirthInputFlow();
+  birthSubmissionBusy = true;
+  button.disabled = true;
+  button.textContent = '排 盘 中…';
+  note.textContent = '正在按当前出生资料计算十二宫、星曜与运限…';
+  note.classList.remove('error');
+  note.classList.add('working');
+  try{
+    await generateRealChart();
+    releaseEntryPalaceLock();
+    entryFocusProgress = 0;
+    clearSelection();
+    document.getElementById('birthPanel').classList.remove('visible');
+    interactionLocked = true;
+    setState('arranging');
+    updateBirthSummary();
+  }catch(error){
+    note.textContent = error && error.message ? error.message : '排盘暂时失败，请检查日期后重试';
+    note.classList.remove('working');
+    note.classList.add('error');
+  }finally{
+    birthSubmissionBusy = false;
+    button.disabled = false;
+    button.textContent = '进 入 时 域';
+    if(state.current !== 'birth-input') note.classList.remove('working');
+  }
+  return state.current;
+}
+
+function openReportRequestPanel(){
+  var panel = document.getElementById('reportRequestPanel');
+  document.getElementById('reportRequestBackdrop').classList.add('visible');
+  panel.classList.add('visible');
+  panel.setAttribute('aria-hidden','false');
+  setTimeout(function(){ document.getElementById('reportEmail').focus(); },280);
+}
+
+function continueWithoutReportRequest(){
+  state.reportType = 'plain';
+  setState('report-view');
+  var feedback = document.getElementById('continueFeedback');
+  feedback.classList.remove('visible');
+  window.clearTimeout(continueFeedbackTimer);
+  requestAnimationFrame(function(){ feedback.classList.add('visible'); });
+  continueFeedbackTimer = window.setTimeout(function(){
+    feedback.classList.remove('visible');
+  },2600);
+}
+
+function closeReportRequestPanel(){
+  var panel = document.getElementById('reportRequestPanel');
+  document.getElementById('reportRequestBackdrop').classList.remove('visible');
+  panel.classList.remove('visible');
+  panel.setAttribute('aria-hidden','true');
+  document.getElementById('openReportRequest').focus();
+}
+
+async function sendReportVerification(){
+  var email = document.getElementById('reportEmail').value.trim();
+  var button = document.getElementById('sendReportCode');
+  var message = document.getElementById('reportRequestMessage');
+  var debug = document.getElementById('reportDebugCode');
+  if(STATIC_GITHUB_DEMO){
+    message.textContent = 'GitHub 备用演示站不会上传或保存邮箱、出生资料。这里仅展示申请流程，请先点“暂不申请”继续查看完整报告样例。';
+    debug.classList.remove('visible');
+    return;
+  }
+  button.disabled = true;
+  button.textContent = '生成中…';
+  message.textContent = '';
+  debug.classList.remove('visible');
+  try{
+    var response = await fetch('/api/report-requests/verification',{
+      method:'POST',
+      headers:{'content-type':'application/json'},
+      body:JSON.stringify({email:email})
+    });
+    var data = await response.json();
+    if(!response.ok) throw new Error(data.error || '验证码生成失败');
+    debug.textContent = '本地调试验证码：' + data.debugCode + '（正式接入邮件后，这里不会显示）';
+    debug.classList.add('visible');
+    document.getElementById('reportEmailCode').value = data.debugCode;
+    message.textContent = '本地验证码已生成并自动填入。';
+  }catch(error){
+    message.textContent = error && error.message ? error.message : '验证码生成失败';
+  }finally{
+    button.disabled = false;
+    button.textContent = '发送验证码';
+  }
+}
+
+async function createReportRequest(){
+  var button = document.getElementById('submitReportRequest');
+  var message = document.getElementById('reportRequestMessage');
+  if(STATIC_GITHUB_DEMO){
+    message.textContent = '这是 GitHub 备用演示站，报告任务不会在这里提交，也不会收集你的邮箱或出生资料。';
+    return;
+  }
+  button.disabled = true;
+  button.textContent = '正在建立任务…';
+  message.textContent = '';
+  try{
+    var response = await fetch('/api/report-requests',{
+      method:'POST',
+      headers:{'content-type':'application/json'},
+      body:JSON.stringify({
+        email:document.getElementById('reportEmail').value.trim(),
+        code:document.getElementById('reportEmailCode').value.trim(),
+        consent:document.getElementById('reportConsent').checked,
+        input:state.birthInput
+      })
+    });
+    var data = await response.json();
+    if(!response.ok) throw new Error(data.error || '报告申请失败');
+    reportStatusUrl = window.location.origin + '/report?token=' + encodeURIComponent(data.accessToken);
+    document.getElementById('reportTaskNumber').textContent = data.taskNo;
+    document.getElementById('openReportStatus').href = reportStatusUrl;
+    document.getElementById('reportRequestForm').classList.add('hidden');
+    document.getElementById('reportRequestSuccess').classList.add('visible');
+  }catch(error){
+    message.textContent = error && error.message ? error.message : '报告申请失败';
+  }finally{
+    button.disabled = false;
+    button.textContent = '提交人工报告申请';
+  }
+}
+
+async function copyReportStatusUrl(){
+  var button = document.getElementById('copyReportStatus');
+  if(!reportStatusUrl) return;
+  try{
+    await navigator.clipboard.writeText(reportStatusUrl);
+    button.textContent = '私密链接已复制';
+  }catch(error){
+    button.textContent = '复制失败，请打开任务页后收藏';
+  }
+}
+
 // ============================================================
 // 九、事件绑定
 // ============================================================
 
-document.getElementById('submitBirth').addEventListener('click', function(){
-  if(state.current !== 'birth-input') return;
-  releaseEntryPalaceLock();
-  entryFocusProgress = 0;
-  clearSelection();
-  document.getElementById('birthPanel').classList.remove('visible');
-  interactionLocked = true;
-  setState('arranging');
-  updateBirthSummary();
-});
-
-document.querySelectorAll('#reportChoice .report-btn').forEach(function(btn){
-  btn.addEventListener('click', function(){
-    state.reportType = btn.dataset.type;
-    setState('report-view');
-  });
+document.getElementById('submitBirth').addEventListener('click', function(){ void submitBirthAndArrange(); });
+document.getElementById('openReportRequest').addEventListener('click',openReportRequestPanel);
+document.getElementById('continueWithoutReport').addEventListener('click',continueWithoutReportRequest);
+document.getElementById('openProfileFromChoice').addEventListener('click',function(){ openProfileView('report-choice'); });
+document.getElementById('restartBirthInput').addEventListener('click',restartBirthInputFlow);
+document.getElementById('profileRestartBirth').addEventListener('click',restartBirthInputFlow);
+document.getElementById('resumeSavedProfile').addEventListener('click',function(){ void resumeSavedProfile(); });
+document.getElementById('forgetSavedProfile').addEventListener('click',clearSavedLocalProfile);
+document.getElementById('clearSavedProfile').addEventListener('click',clearSavedLocalProfile);
+document.getElementById('closeReportRequest').addEventListener('click',closeReportRequestPanel);
+document.getElementById('reportRequestBackdrop').addEventListener('click',closeReportRequestPanel);
+document.getElementById('sendReportCode').addEventListener('click',function(){ void sendReportVerification(); });
+document.getElementById('submitReportRequest').addEventListener('click',function(){ void createReportRequest(); });
+document.getElementById('copyReportStatus').addEventListener('click',function(){ void copyReportStatusUrl(); });
+document.addEventListener('keydown',function(event){
+  if(event.key === 'Escape' && document.getElementById('reportRequestPanel').classList.contains('visible')){
+    closeReportRequestPanel();
+  }
 });
 
 document.getElementById('reportBack').addEventListener('click', backToChoice);
-document.getElementById('profileBack').addEventListener('click', returnToReport);
+document.getElementById('profileBack').addEventListener('click', returnFromProfile);
 document.getElementById('modeToggle').addEventListener('click',toggleChartShape);
 document.getElementById('openWorkstation').addEventListener('click', openWorkstation);
 document.getElementById('openInterpretReport').addEventListener('click', openInterpretReport);
@@ -5639,6 +6518,7 @@ window.addEventListener('scroll',function(){
 initDefaultSpiral();
 initWheels();
 initToggles();
+refreshSavedProfileCard();
 updateHudVisibility();
 animate();
 
@@ -5684,20 +6564,14 @@ window.__ZIWEI_FLOW_TEST__ = {
     }
     return state.birthInput;
   },
-  submitBirth: function(){
+  submitBirth: async function(){
     if(state.current === 'intro'){
       state.introElapsed = 4;
       setState('birth-input');
       document.getElementById('birthPanel').classList.add('visible');
     }
     if(state.current === 'birth-input'){
-      releaseEntryPalaceLock();
-      entryFocusProgress = 0;
-      clearSelection();
-      document.getElementById('birthPanel').classList.remove('visible');
-      interactionLocked = true;
-      setState('arranging');
-      updateBirthSummary();
+      await submitBirthAndArrange();
     }
     return state.current;
   },

@@ -1,14 +1,9 @@
-紫微时域 Demo V17 离线备份
+# 紫微时域 GitHub 备用演示站
 
-使用方法：
-1. 解压 ZIP 文件。
-2. 双击 index.html，即可在浏览器中打开演示。
-3. 建议使用最新版 Chrome 或 Edge，并允许浏览器启用 WebGL。
+这个仓库发布可直接在浏览器打开的静态备用版本：
 
-在线主站：
-https://ziwei-time-domain.thanks1900ss.chatgpt.site/?v=17
-
-GitHub 备用站：
 https://boboloveseggs.github.io/ziwei-time-domain-demo-pages/
 
-本 Demo 为紫微时域交互与视觉展示版本。
+当前版本包含出生日期时间输入、浏览器内真实紫微排盘、个人中心、报告申请流程预览，以及专业版与大白话版完整报告样例。
+
+GitHub 备用站不会提交报告任务，也不会上传或保存邮箱、出生资料；命盘资料只保存在当前浏览器本机，可在个人中心删除。
