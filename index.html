@@ -460,6 +460,22 @@
   }
   .report-back:hover{border-color:var(--accent);color:var(--accent);}
 
+  #sampleReportApplyFloat{
+    position:fixed;z-index:23;left:24px;top:50%;width:156px;
+    padding:15px 15px 14px;border:1px solid rgba(143,67,57,.42);border-left:3px solid var(--accent);
+    border-radius:6px;background:rgba(252,250,245,.96);backdrop-filter:blur(14px);
+    color:var(--ink);text-align:left;font-family:inherit;cursor:pointer;
+    box-shadow:0 12px 34px rgba(61,48,37,.12);
+    opacity:0;visibility:hidden;pointer-events:none;transform:translate(-18px,-50%);
+    transition:opacity .28s ease,transform .38s cubic-bezier(.22,.72,.20,1),border-color .2s ease,box-shadow .2s ease;
+  }
+  #sampleReportApplyFloat.visible{opacity:1;visibility:visible;pointer-events:auto;transform:translate(0,-50%);}
+  #sampleReportApplyFloat span,#sampleReportApplyFloat strong,#sampleReportApplyFloat small{display:block;}
+  #sampleReportApplyFloat span{color:var(--accent);font:700 8px/1.2 ui-monospace,Consolas,monospace;letter-spacing:.16em;text-transform:uppercase;}
+  #sampleReportApplyFloat strong{margin-top:6px;font:600 16px/1.35 "Songti SC","SimSun",serif;letter-spacing:.06em;}
+  #sampleReportApplyFloat small{margin-top:5px;color:var(--ink-dim);font-size:9px;line-height:1.45;letter-spacing:.03em;}
+  #sampleReportApplyFloat:hover,#sampleReportApplyFloat:focus-visible{border-color:var(--accent);outline:none;box-shadow:0 15px 38px rgba(143,67,57,.17);}
+
   .report-section{
     position:absolute;z-index:10;top:0;right:0;
     width:var(--report-pane);height:100svh;overflow-y:auto;
@@ -1136,6 +1152,13 @@
 
   @media (max-width:780px){
     :root{--toc-drawer:min(210px,calc(100vw - 78px));--toc-edge:14px;}
+    #sampleReportApplyFloat{
+      left:12px;top:auto;bottom:max(12px,env(safe-area-inset-bottom));width:auto;min-width:136px;
+      padding:10px 12px 9px;transform:translateY(14px);
+    }
+    #sampleReportApplyFloat.visible{transform:translateY(0);}
+    #sampleReportApplyFloat strong{margin-top:3px;font-size:13px;}
+    #sampleReportApplyFloat small{margin-top:2px;font-size:8px;}
     #reportTocToggle{padding:7px 0;}
     .toc-toggle-label{font-size:11px;}
     body.report-total-below #reportView .report-section{top:auto;height:auto;padding:68px 18px 84px;}
@@ -1569,6 +1592,11 @@
 
 <!-- 报告内容 -->
 <div id="reportView">
+  <button id="sampleReportApplyFloat" type="button" aria-hidden="true">
+    <span>Manual report</span>
+    <strong>申请人工大报告</strong>
+    <small>专业版＋大白话版 · 约24～48小时</small>
+  </button>
   <button class="report-back" id="reportBack">← 返回选择</button>
   <button id="reportPanelToggle" type="button" aria-controls="reportPanel" aria-expanded="true" aria-label="收起报告" title="收起报告">
     <span class="panel-toggle-icon" aria-hidden="true">›</span>
@@ -2714,6 +2742,7 @@ var state = {
   reportType: null,
   reportMode: null,
   reportIntent: null,
+  sampleReportConfirmed: false,
   arrangingProgress: 0,
   arrangingElapsed: 0,
   introElapsed: 0,
@@ -5839,6 +5868,15 @@ function syncWorkstationStatus(){
   );
 }
 
+function syncSampleReportApplyFloat(){
+  var button = document.getElementById('sampleReportApplyFloat');
+  var visible = state.current === 'report-view'
+    && state.reportMode === 'sample'
+    && state.sampleReportConfirmed;
+  button.classList.toggle('visible',visible);
+  button.setAttribute('aria-hidden',String(!visible));
+}
+
 function openReportView(){
   releaseReportChoicePalaceLock();
   reportChoiceFocusProgress = 0;
@@ -5892,6 +5930,7 @@ function openReportView(){
   var scroller = getReportScroller();
   if(scroller) scroller.scrollTop = 0;
   setReportStageActive('overview');
+  syncSampleReportApplyFloat();
   syncReportHeroChrome();
   syncReportToc();
 }
@@ -5924,6 +5963,7 @@ function openProfileView(returnTarget){
   setReportScrolling(false);
   state.current = 'profile';
   interactionLocked = true;
+  syncSampleReportApplyFloat();
   updateHudVisibility();
 }
 
@@ -5937,6 +5977,7 @@ function returnFromProfile(){
   document.getElementById('workstationPanel').classList.remove('visible');
   state.current = 'report-choice';
   interactionLocked = false;
+  syncSampleReportApplyFloat();
   document.getElementById('reportChoice').classList.add('visible');
   updateHudVisibility();
   window.scrollTo(0,0);
@@ -5978,6 +6019,7 @@ function returnToReport(){
   }
   state.current = 'report-view';
   interactionLocked = false;
+  syncSampleReportApplyFloat();
   setReportScrolling(totalBelow);
   updateHudVisibility();
   var reportScroller = getReportScroller();
@@ -6134,6 +6176,7 @@ function backToChoice(){
   destroyThreeLayers();
 
   state.current = 'report-choice';
+  syncSampleReportApplyFloat();
   state.chartShape = 'spiral';
   state.flatFacingProgress = 0;
   resetSpiralCardOrientation();
@@ -6153,6 +6196,7 @@ function backToChoice(){
 var birthSubmissionBusy = false;
 var reportStatusUrl = '';
 var continueFeedbackTimer = 0;
+var reportRequestReturnFocus = null;
 var STATIC_GITHUB_DEMO = true;
 var REPORT_API_BASE = 'https://ziwei-time-domain.thanks1900ss.chatgpt.site';
 
@@ -6350,6 +6394,8 @@ function restartBirthInputFlow(){
   state.reportType = null;
   state.reportMode = null;
   state.reportIntent = null;
+  state.sampleReportConfirmed = false;
+  syncSampleReportApplyFloat();
   state.chartShape = 'spiral';
   state.flatFacingProgress = 0;
   state.spiralOffsetX = 0;
@@ -6409,6 +6455,7 @@ async function submitBirthAndArrange(){
 
 function openReportRequestPanel(){
   var panel = document.getElementById('reportRequestPanel');
+  reportRequestReturnFocus = document.activeElement;
   document.getElementById('reportRequestBackdrop').classList.add('visible');
   panel.classList.add('visible');
   panel.setAttribute('aria-hidden','false');
@@ -6431,6 +6478,7 @@ function openSampleReport(wantsHumanReport){
   state.reportType = 'plain';
   state.reportMode = 'sample';
   state.reportIntent = wantsHumanReport ? 'human' : 'browse';
+  state.sampleReportConfirmed = false;
   setState('report-view');
   showReportChoiceFeedback(
     wantsHumanReport ? '先看成品模板' : '无需申请',
@@ -6443,6 +6491,7 @@ function openBasicComputerReport(reportSubmitted){
   state.reportType = 'plain';
   state.reportMode = 'basic';
   state.reportIntent = reportSubmitted ? 'submitted' : 'browse';
+  state.sampleReportConfirmed = false;
   setState('report-view');
   showReportChoiceFeedback(
     reportSubmitted ? '大报告已进入队列' : '基础解读已生成',
@@ -6452,9 +6501,16 @@ function openBasicComputerReport(reportSubmitted){
 
 function showSampleReportNotice(){
   var notice = document.getElementById('sampleReportNotice');
+  syncSampleReportApplyFloat();
   notice.classList.add('visible');
   notice.setAttribute('aria-hidden','false');
   window.setTimeout(function(){ document.getElementById('acknowledgeSampleReport').focus(); },80);
+}
+
+function confirmSampleReportNotice(){
+  state.sampleReportConfirmed = true;
+  hideSampleReportNotice();
+  syncSampleReportApplyFloat();
 }
 
 function hideSampleReportNotice(restoreFocus){
@@ -6475,9 +6531,12 @@ function closeReportRequestPanel(restoreFocus){
   panel.classList.remove('visible');
   panel.setAttribute('aria-hidden','true');
   if(restoreFocus !== false){
-    var returnButton = document.getElementById('applyFromSample') || document.getElementById('openReportRequest');
+    var returnButton = reportRequestReturnFocus && document.contains(reportRequestReturnFocus)
+      ? reportRequestReturnFocus
+      : (document.getElementById('applyFromSample') || document.getElementById('openReportRequest'));
     if(returnButton) returnButton.focus();
   }
+  reportRequestReturnFocus = null;
 }
 
 function continueAfterReportRequest(){
@@ -6581,7 +6640,8 @@ document.getElementById('sendReportCode').addEventListener('click',function(){ v
 document.getElementById('submitReportRequest').addEventListener('click',function(){ void createReportRequest(); });
 document.getElementById('copyReportStatus').addEventListener('click',function(){ void copyReportStatusUrl(); });
 document.getElementById('continueAfterReportRequest').addEventListener('click',continueAfterReportRequest);
-document.getElementById('acknowledgeSampleReport').addEventListener('click',hideSampleReportNotice);
+document.getElementById('acknowledgeSampleReport').addEventListener('click',confirmSampleReportNotice);
+document.getElementById('sampleReportApplyFloat').addEventListener('click',openReportRequestPanel);
 document.addEventListener('keydown',function(event){
   if(document.getElementById('sampleReportNotice').classList.contains('visible')){
     if(event.key === 'Escape' || event.key === 'Tab'){
@@ -6657,6 +6717,7 @@ window.__ZIWEI_FLOW_TEST__ = {
       reportType: state.reportType,
       reportMode: state.reportMode,
       reportIntent: state.reportIntent,
+      sampleReportConfirmed: state.sampleReportConfirmed,
       chartShape: state.chartShape,
       arrangingProgress: state.arrangingProgress,
       threeLayerProgress: state.threeLayerProgress,
