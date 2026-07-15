@@ -4,7 +4,6 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
 <title>紫微时域 · 人生螺旋图</title>
-<script src="./iztro.min.js"></script>
 <style>
   :root{
     --paper-0:#FCFAF5;
@@ -389,10 +388,15 @@
   .request-kicker{margin:0 0 10px;color:var(--accent);font-size:10px;letter-spacing:.16em;text-transform:uppercase;}
   .request-title{margin:0;font-family:"Songti SC","SimSun",serif;font-size:29px;font-weight:600;letter-spacing:.05em;}
   .request-lead{margin:13px 0 26px;color:var(--ink-dim);font-size:12px;line-height:1.8;}
-  .request-editions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:26px;}
-  .request-edition{padding:13px;border:1px solid var(--line);background:rgba(255,255,255,.36);}
+  .request-editions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:0 0 26px;padding:0;border:0;}
+  .request-editions legend{grid-column:1/-1;margin-bottom:2px;color:var(--ink-dim);font-size:10px;letter-spacing:.08em;}
+  .request-edition{display:grid;grid-template-columns:auto 1fr;gap:9px;align-items:start;padding:13px;border:1px solid var(--line);background:rgba(255,255,255,.36);cursor:pointer;transition:border-color .18s ease,background .18s ease,box-shadow .18s ease;}
+  .request-edition:hover{border-color:rgba(143,67,57,.55);}
+  .request-edition:has(input:checked){border-color:var(--accent);background:rgba(143,67,57,.09);box-shadow:inset 0 0 0 1px rgba(143,67,57,.14);}
+  .request-edition input{margin:2px 0 0;accent-color:var(--accent);}
   .request-edition strong{display:block;font-family:"Songti SC","SimSun",serif;font-size:14px;}
-  .request-edition span{display:block;margin-top:5px;color:var(--ink-dim);font-size:9px;line-height:1.5;}
+  .request-edition span{display:block;color:var(--ink-dim);font-size:9px;line-height:1.5;}
+  .request-edition small{display:block;margin-top:5px;color:var(--ink-dim);font-size:9px;line-height:1.5;}
   .request-field{display:grid;gap:7px;margin-top:16px;}
   .request-field > span{font-size:11px;color:var(--ink-dim);}
   .request-field input{
@@ -1410,7 +1414,7 @@
     </div>
     <div class="report-invite-actions" role="group" aria-label="选择报告查看方式">
       <button class="report-choice-action" id="openReportRequest" type="button">
-        <span>AI 深度生成 · 24～48小时</span><strong>超级详细 AI 大报告</strong><small>专业版＋大白话版 · 最高可长达20页</small>
+        <span>AI 深度生成 · 24～48小时</span><strong>超级详细 AI 大报告</strong><small>专业版 / 大白话版 · 二选一 · 单份最高20页</small>
       </button>
       <button class="report-choice-action" id="openBasicReport" type="button">
         <span>电脑 · 立即生成</span><strong>查看基础解读</strong><small>按你的真实命盘，自动给出最基础的通俗翻译</small>
@@ -1435,7 +1439,7 @@
       <span><strong>真实部分</strong>刚才按出生年月日、时间和性别生成的命盘</span>
       <span><strong>样本部分</strong>进入报告后展示的详细解读文字与案例</span>
     </div>
-    <p class="sample-notice-wait">个人专属的专业版与大白话版 AI 大报告，需要看过模板后再申请深度生成，最高可长达20页，约需24～48小时。</p>
+    <p class="sample-notice-wait">个人专属 AI 大报告可选择专业版或大白话版，只能选择一份；所选单份最高可长达20页，约需24～48小时。</p>
     <button id="acknowledgeSampleReport" type="button">我已知晓：下面是固定样本，不是我的报告</button>
   </section>
 </div>
@@ -1447,12 +1451,13 @@
   <div id="reportRequestForm">
     <p class="request-kicker">AI report · Up to 20 pages</p>
     <h2 class="request-title" id="reportRequestTitle">生成超级详细 AI 大报告</h2>
-    <p class="request-lead">当前命盘已经按你输入的出生资料真实排好，可以随时继续浏览。提交申请后，将基于同一份命盘深度生成专业版与大白话版，最高可长达20页，约需24～48小时，完成后再通过邮箱通知。</p>
+    <p class="request-lead">当前命盘已经按你输入的出生资料真实排好，可以随时继续浏览。提交申请前请选择专业版或大白话版其中一份；所选单份报告最高可长达20页，约需24～48小时，完成后再通过邮箱通知。</p>
 
-    <div class="request-editions" aria-label="报告版本">
-      <div class="request-edition"><strong>专业版</strong><span>保留命宫、星曜、四化与运限结构</span></div>
-      <div class="request-edition"><strong>大白话版</strong><span>把术语翻译成观察方式与行动提示</span></div>
-    </div>
+    <fieldset class="request-editions">
+      <legend>选择报告版本 · 只能选择一个</legend>
+      <label class="request-edition"><input type="radio" name="reportVariant" value="professional" /><span><strong>专业版</strong><small>保留命宫、星曜、四化与运限结构，适合想看命理逻辑的人</small></span></label>
+      <label class="request-edition"><input type="radio" name="reportVariant" value="plain" /><span><strong>大白话版</strong><small>把术语翻译成现实观察与行动提示，适合直接阅读和使用</small></span></label>
+    </fieldset>
 
     <label class="request-field">
       <span>接收完成通知的邮箱</span>
@@ -1470,19 +1475,19 @@
 
     <label class="request-consent">
       <input id="reportConsent" type="checkbox" />
-      <span>我同意本服务为排盘、AI 深度生成及交付紫微斗数文化体验报告，处理我提交的邮箱、出生日期时间、历法和性别，并将任务编号、出生日期时间、历法和性别发送至报告制作邮箱。资料不会用于其他用途，并将在报告交付后30天内删除。若提交他人资料，我确认已经取得本人或监护人授权。</span>
+      <span>我同意本服务为排盘、AI 深度生成并交付我所选择的专业版或大白话版其中一份紫微斗数文化体验报告，处理我提交的邮箱、出生日期时间、历法、性别和报告版本，并将任务编号、出生日期时间、历法、性别和所选报告版本发送至报告制作邮箱。资料不会用于其他用途，并将在报告交付后30天内删除。若提交他人资料，我确认已经取得本人或监护人授权。</span>
     </label>
 
     <button id="submitReportRequest" type="button">提交 AI 大报告申请</button>
     <p id="reportRequestMessage" role="status" aria-live="polite"></p>
-    <p class="request-disclaimer">本服务为传统文化体验内容，仅供娱乐与自我观察参考，不替代医疗、心理、法律或投资等专业建议。你可以通过私密报告页提前删除资料。<a href="https://ziwei-time-domain.thanks1900ss.chatgpt.site/privacy" target="_top">查看个人信息处理说明</a></p>
+    <p class="request-disclaimer">本服务为传统文化体验内容，仅供娱乐与自我观察参考，不替代医疗、心理、法律或投资等专业建议。你可以通过私密报告页提前删除资料。<a href="/privacy" target="_top">查看个人信息处理说明</a></p>
   </div>
 
   <div id="reportRequestSuccess">
     <div class="success-mark">已收</div>
     <p class="request-kicker">Request received</p>
     <h2 class="request-title">报告任务已经建立</h2>
-    <p class="request-lead">超级详细 AI 大报告已经进入深度生成队列，最高可长达20页，约需24～48小时。你现在可以继续浏览自己的真实命盘；报告完成后会通过邮箱通知，出生资料不会出现在用户邮件正文。</p>
+    <p class="request-lead">你选择的<strong id="reportSuccessVariant">报告</strong>已经进入深度生成队列，单份最高可长达20页，约需24～48小时。你现在可以继续浏览自己的真实命盘；报告完成后会通过邮箱通知，出生资料不会出现在用户邮件正文。</p>
     <div class="success-task"><span>报告任务编号</span><strong id="reportTaskNumber">—</strong></div>
     <button id="continueAfterReportRequest" type="button">继续看我的真实命盘</button>
     <a id="openReportStatus" href="#" target="_top">查看私密任务页</a>
@@ -1595,7 +1600,7 @@
   <button id="sampleReportApplyFloat" type="button" aria-hidden="true">
     <span>AI report</span>
     <strong>申请超级详细 AI 大报告</strong>
-    <small>专业版＋大白话版 · 最高可长达20页</small>
+    <small>专业版 / 大白话版 · 二选一 · 最高20页</small>
   </button>
   <button class="report-back" id="reportBack">← 返回选择</button>
   <button id="reportPanelToggle" type="button" aria-controls="reportPanel" aria-expanded="true" aria-label="收起报告" title="收起报告">
@@ -2134,7 +2139,7 @@ function buildReport(chart, type){
       + '<section class="combined-report" id="totalReportStart" data-report-section="total">'
       + '<div class="combined-report-intro"><div class="eyebrow">COMPUTER · 即时生成</div><h2>电脑基础解读</h2>'
       + '<p>前三层和下面的文字都按你本次生成的真实命盘自动翻译，适合立即了解基本结构；它没有经过 AI 逐宫深度扩写与完整排版。</p></div>'
-      + '<div class="report-callout"><strong>范围说明：</strong>这是电脑按固定规则生成的基础版本，不是最高可长达20页的超级详细 AI 大报告，也不会替代医疗、投资或其他专业判断。</div>'
+      + '<div class="report-callout"><strong>范围说明：</strong>这是电脑按固定规则生成的基础版本，不是需要二选一申请、单份最高可达20页的超级详细 AI 大报告，也不会替代医疗、投资或其他专业判断。</div>'
       + buildDynamicPlainReport(chart) + '</section>';
   }
   if(!DEMO_SAMPLE_CHART) DEMO_SAMPLE_CHART = buildDemoSampleChart();
@@ -2177,7 +2182,7 @@ function reportProfileAction(){
 }
 
 function reportApplicationAction(){
-  return '<aside class="sample-apply-cta"><div class="eyebrow">AI REPORT · 最高可长达20页</div><h3>已经了解呈现方式？</h3><p>确认需要与你本人命盘对应的专业版和大白话版 AI 大报告后，再提交邮箱验证。完成时邮件只发送通知。</p><button id="applyFromSample" type="button">申请我的超级详细 AI 大报告</button></aside>';
+  return '<aside class="sample-apply-cta"><div class="eyebrow">AI REPORT · 单份最高20页</div><h3>已经了解呈现方式？</h3><p>可选择专业版或大白话版其中一份；确认需要后再提交邮箱验证，完成时邮件只发送通知。</p><button id="applyFromSample" type="button">选择并申请 AI 大报告</button></aside>';
 }
 
 function buildDynamicProfessionalReport(chart){
@@ -2933,7 +2938,7 @@ function updateHudVisibility(){
   } else if(state.current === 'arranging'){
     hint.textContent = '排盘中…';
   } else if(state.current === 'report-choice'){
-    hint.textContent = '真实命盘已生成 · 可继续探索，或申请最高可长达20页的超级详细 AI 大报告';
+    hint.textContent = '真实命盘已生成 · 可继续探索，或从专业版与大白话版中选择一份最高20页的超级详细 AI 大报告';
   } else if(state.current === 'report-view'){
     hint.textContent = '左侧转动三层命盘 · 右侧分层阅读报告';
   } else if(state.current === 'profile'){
@@ -6255,136 +6260,8 @@ var birthSubmissionBusy = false;
 var reportStatusUrl = '';
 var continueFeedbackTimer = 0;
 var reportRequestReturnFocus = null;
-var STATIC_GITHUB_DEMO = true;
-var REPORT_API_BASE = 'https://ziwei-time-domain.thanks1900ss.chatgpt.site';
-
-function staticPalaceKey(name){
-  var map = {
-    '命宫':'命','兄弟':'兄','夫妻':'夫','子女':'子','财帛':'财','疾厄':'疾',
-    '迁移':'迁','仆役':'友','交友':'友','官禄':'官','田宅':'田','福德':'福','父母':'父'
-  };
-  return map[name] || name.slice(0,1);
-}
-
-function staticDisplayPalaceName(name){
-  if(name === '仆役') return '交友宫';
-  return name.endsWith('宫') ? name : name + '宫';
-}
-
-function staticTimeIndex(hour){
-  return hour === 23 ? 12 : Math.ceil(hour / 2);
-}
-
-function createStaticChart(input){
-  if(!window.iztro || !window.iztro.astro){
-    throw new Error('本地排盘程序加载失败，请刷新网页后重试');
-  }
-  var date = input.year + '-' + input.month + '-' + input.day;
-  var gender = input.gender === 'female' ? '女' : '男';
-  var chart = input.calendar === 'lunar'
-    ? window.iztro.astro.byLunar(
-        date,
-        staticTimeIndex(input.hour),
-        gender,
-        Boolean(input.isLeapMonth),
-        true,
-        'zh-CN'
-      )
-    : window.iztro.astro.bySolar(date,staticTimeIndex(input.hour),gender,true,'zh-CN');
-  var shanghaiDate = new Intl.DateTimeFormat('sv-SE',{
-    timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'
-  }).format(new Date());
-  var currentMoment = new Date(shanghaiDate + 'T12:00:00+08:00');
-  var horoscope = chart.horoscope(currentMoment);
-  var palaces = chart.palaces.map(function(palace,index){
-    var majorStars = palace.majorStars.filter(function(star){ return star.type === 'major'; });
-    var minorStars = palace.majorStars.filter(function(star){ return star.type !== 'major'; })
-      .concat(palace.minorStars,palace.adjectiveStars);
-    var allStars = palace.majorStars.concat(palace.minorStars);
-    var mutagenStar = allStars.find(function(star){ return Boolean(star.mutagen); });
-    return {
-      index:index,
-      palaceKey:staticPalaceKey(palace.name),
-      palaceName:staticDisplayPalaceName(palace.name),
-      branch:palace.earthlyBranch,
-      branchGan:palace.heavenlyStem,
-      stars:majorStars.map(function(star){
-        return {name:star.name,miaoWang:star.brightness || '',hua:star.mutagen || ''};
-      }),
-      minorStars:minorStars.map(function(star){
-        return {name:star.name,miaoWang:star.brightness || '',hua:star.mutagen || ''};
-      }),
-      hua:mutagenStar ? mutagenStar.mutagen : null,
-      markers:palace.isBodyPalace ? ['身宫'] : [],
-      fullStars:majorStars.concat(minorStars).map(function(star){ return star.name; }).join('、'),
-      longLife:palace.changsheng12,
-      doctor:palace.boshi12,
-      empty:majorStars.length === 0
-    };
-  });
-  var decades = chart.palaces.map(function(palace,palaceIndex){
-    return {
-      startAge:palace.decadal.range[0],
-      endAge:palace.decadal.range[1],
-      palaceIndex:palaceIndex,
-      palaceName:staticDisplayPalaceName(palace.name)
-    };
-  }).filter(function(item){ return item.startAge <= 100; })
-    .sort(function(a,b){ return a.startAge - b.startAge; })
-    .slice(0,10)
-    .map(function(item,decade){
-      item.decade = decade;
-      return item;
-    });
-  var activeDecade = Math.max(0,decades.findIndex(function(item){
-    return item.palaceIndex === horoscope.decadal.index;
-  }));
-  var mingPalaceIndex = chart.palaces.findIndex(function(palace){ return palace.name === '命宫'; });
-  var shenGongIndex = chart.palaces.findIndex(function(palace){ return palace.isBodyPalace; });
-  var fourHua = {};
-  palaces.forEach(function(palace,index){
-    palace.stars.concat(palace.minorStars).forEach(function(star){
-      if(!star.hua) return;
-      var key = {'禄':'lu','权':'quan','科':'ke','忌':'ji'}[star.hua];
-      if(key){
-        fourHua[key] = {star:star.name,palaceIndex:index,palaceName:palace.palaceName};
-      }
-    });
-  });
-  return {
-    input:input,
-    isDemoSample:false,
-    source:'iztro@2.4.1 · GitHub 本地排盘',
-    solarDate:chart.solarDate,
-    lunarDate:chart.lunarDate,
-    chineseDate:chart.chineseDate,
-    timeName:chart.time,
-    timeRange:chart.timeRange,
-    yearGanZhi:horoscope.yearly.heavenlyStem + horoscope.yearly.earthlyBranch,
-    birthGanZhi:chart.rawDates.chineseDate.yearly.join(''),
-    fiveElementsClass:chart.fiveElementsClass,
-    soul:chart.soul,
-    body:chart.body,
-    mingPalaceIndex:mingPalaceIndex < 0 ? 0 : mingPalaceIndex,
-    shenGongIndex:shenGongIndex < 0 ? 0 : shenGongIndex,
-    palaces:palaces,
-    currentYear:Number(shanghaiDate.slice(0,4)),
-    age:horoscope.age.nominalAge,
-    majorDecadeIndex:activeDecade,
-    majorPalaceIndex:horoscope.decadal.index,
-    smallLimitIndex:horoscope.age.index,
-    yearPalaceIndex:horoscope.yearly.index,
-    monthPalaceIndex:horoscope.monthly.index,
-    majorDecades:decades,
-    fourHua:fourHua
-  };
-}
 
 async function generateRealChart(){
-  if(STATIC_GITHUB_DEMO){
-    state.generatedChart = createStaticChart(state.birthInput);
-    return state.generatedChart;
-  }
   var response = await fetch('/api/chart',{
     method:'POST',
     headers:{'content-type':'application/json'},
@@ -6610,11 +6487,11 @@ async function sendReportVerification(){
   var message = document.getElementById('reportRequestMessage');
   var debug = document.getElementById('reportDebugCode');
   button.disabled = true;
-  button.textContent = '发送中…';
+  button.textContent = '生成中…';
   message.textContent = '';
   debug.classList.remove('visible');
   try{
-    var response = await fetch(REPORT_API_BASE + '/api/report-requests/verification',{
+    var response = await fetch('/api/report-requests/verification',{
       method:'POST',
       headers:{'content-type':'application/json'},
       body:JSON.stringify({email:email})
@@ -6640,24 +6517,31 @@ async function sendReportVerification(){
 async function createReportRequest(){
   var button = document.getElementById('submitReportRequest');
   var message = document.getElementById('reportRequestMessage');
+  var selectedVariant = document.querySelector('input[name="reportVariant"]:checked');
+  if(!selectedVariant){
+    message.textContent = '请先选择专业版或大白话版其中一份';
+    return;
+  }
   button.disabled = true;
   button.textContent = '正在建立任务…';
   message.textContent = '';
   try{
-    var response = await fetch(REPORT_API_BASE + '/api/report-requests',{
+    var response = await fetch('/api/report-requests',{
       method:'POST',
       headers:{'content-type':'application/json'},
       body:JSON.stringify({
         email:document.getElementById('reportEmail').value.trim(),
         code:document.getElementById('reportEmailCode').value.trim(),
         consent:document.getElementById('reportConsent').checked,
+        reportVariant:selectedVariant.value,
         input:state.birthInput
       })
     });
     var data = await response.json();
     if(!response.ok) throw new Error(data.error || '报告申请失败');
-    reportStatusUrl = REPORT_API_BASE + '/report?token=' + encodeURIComponent(data.accessToken);
+    reportStatusUrl = window.location.origin + '/report?token=' + encodeURIComponent(data.accessToken);
     document.getElementById('reportTaskNumber').textContent = data.taskNo;
+    document.getElementById('reportSuccessVariant').textContent = (data.reportVariant || selectedVariant.value) === 'professional' ? '专业版' : '大白话版';
     document.getElementById('openReportStatus').href = reportStatusUrl;
     document.getElementById('reportRequestForm').classList.add('hidden');
     document.getElementById('reportRequestSuccess').classList.add('visible');
