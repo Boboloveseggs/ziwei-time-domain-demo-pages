@@ -6497,6 +6497,8 @@ function openBasicComputerReport(reportSubmitted){
     reportSubmitted ? '大报告已进入队列' : '基础解读已生成',
     reportSubmitted ? '等待期间继续看电脑基础解读' : '内容来自你本次排出的真实命盘'
   );
+  // “查看基础解读”应直接落到正文，避免只看到三层总览而误以为按钮没有响应。
+  scrollToReportStage('total');
 }
 
 function showSampleReportNotice(){
