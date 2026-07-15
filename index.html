@@ -249,13 +249,13 @@
   #reportChoice{
     position:fixed;z-index:8;left:50%;bottom:clamp(24px,4vh,42px);
     transform:translate(-50%,60px);
-    width:min(560px,calc(100vw - 36px));
+    width:min(790px,calc(100vw - 36px));
     opacity:0;pointer-events:none;
     transition:opacity 0.7s ease, transform 0.7s cubic-bezier(.22,.72,.20,1);
   }
   #reportChoice.visible{opacity:1;transform:translate(-50%,0);pointer-events:auto;}
   .report-request-invite{
-    display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center;
+    display:block;
     padding:20px 22px;border:1px solid var(--line);border-radius:8px;
     background:rgba(252,250,245,.94);backdrop-filter:blur(16px);
     box-shadow:0 16px 46px rgba(61,48,37,.12);
@@ -278,24 +278,27 @@
   }
   .choice-quick-actions #openProfileFromChoice{color:var(--accent);border-color:rgba(143,67,57,.45);}
   .choice-quick-actions button:hover,.choice-quick-actions button:focus-visible{color:var(--ink);border-color:var(--accent);outline:none;}
-  #openReportRequest{
-    min-width:132px;padding:13px 16px;border:0;border-radius:5px;
-    color:#FCFAF5;background:var(--accent);font-family:inherit;font-size:12px;
-    letter-spacing:.08em;cursor:pointer;box-shadow:0 8px 20px rgba(143,67,57,.2);
-  }
-  #openReportRequest:hover{transform:translateY(-1px);}
-  .report-invite-actions{display:grid;gap:7px;min-width:154px;}
-  #continueWithoutReport{
-    width:100%;padding:10px 12px;border:1px solid #d1ccc5;border-radius:5px;
-    background:#ddd9d4;color:#4f4a45;font-family:inherit;font-size:10px;
-    letter-spacing:.05em;cursor:pointer;box-shadow:0 3px 10px rgba(61,48,37,.08);
+  .report-invite-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:15px;}
+  .report-choice-action{
+    min-height:108px;padding:13px 14px;border:1px solid var(--line);border-radius:6px;
+    background:#fffdf8;color:var(--ink);font-family:inherit;text-align:left;cursor:pointer;
+    box-shadow:0 4px 14px rgba(61,48,37,.06);
     transition:color .2s ease,border-color .2s ease,background .2s ease,transform .15s ease,box-shadow .2s ease;
   }
-  #continueWithoutReport:hover,#continueWithoutReport:focus-visible{
-    color:#302d2a;border-color:#aaa39b;background:#d1ccc6;outline:none;
-    box-shadow:0 6px 16px rgba(61,48,37,.13);transform:translateY(-1px);
-  }
-  #continueWithoutReport:active{transform:translateY(0);box-shadow:0 2px 7px rgba(61,48,37,.1);}
+  .report-choice-action span,.report-choice-action strong,.report-choice-action small{display:block;}
+  .report-choice-action span{margin-bottom:7px;color:var(--accent);font:700 8px/1.2 ui-monospace,Consolas,monospace;letter-spacing:.14em;text-transform:uppercase;}
+  .report-choice-action strong{font:600 13px/1.45 "Songti SC","SimSun",serif;letter-spacing:.04em;}
+  .report-choice-action small{margin-top:5px;color:var(--ink-dim);font-size:9px;line-height:1.55;letter-spacing:.02em;}
+  #openReportRequest{border-color:rgba(143,67,57,.66);background:var(--accent);color:#FCFAF5;box-shadow:0 8px 20px rgba(143,67,57,.2);}
+  #openReportRequest span,#openReportRequest small{color:rgba(252,250,245,.76);}
+  #openBasicReport{border-color:rgba(90,122,150,.38);background:#f9fbfc;}
+  #openBasicReport span{color:#5A7A96;}
+  #continueWithoutReport{border-color:#d1ccc5;background:#ddd9d4;color:#4f4a45;}
+  #continueWithoutReport span{color:#6e6862;}
+  .report-choice-action:hover,.report-choice-action:focus-visible{border-color:var(--accent);outline:none;box-shadow:0 8px 20px rgba(61,48,37,.12);transform:translateY(-1px);}
+  #openReportRequest:hover,#openReportRequest:focus-visible{background:#7E382F;color:#FCFAF5;}
+  #continueWithoutReport:hover,#continueWithoutReport:focus-visible{color:#302d2a;border-color:#aaa39b;background:#d1ccc6;}
+  .report-choice-action:active{transform:translateY(0);box-shadow:0 2px 7px rgba(61,48,37,.1);}
   #continueFeedback{
     position:fixed;z-index:32;top:18px;left:50%;
     display:flex;align-items:center;gap:9px;max-width:calc(100vw - 220px);
@@ -325,6 +328,11 @@
   .sample-notice-facts strong{color:var(--ink);font-weight:600;}
   .sample-notice-wait{color:var(--accent) !important;}
   #acknowledgeSampleReport{width:100%;margin-top:22px;padding:13px 16px;border:0;border-radius:5px;color:#fcfaf5;background:var(--accent);font:12px/1.2 inherit;letter-spacing:.06em;cursor:pointer;}
+  .sample-apply-cta{margin:36px 0 10px;padding:24px;border:1px solid rgba(143,67,57,.32);border-radius:8px;background:#fff8ed;text-align:center;}
+  .sample-apply-cta .eyebrow{margin-bottom:7px;color:var(--accent);font:700 9px/1.3 ui-monospace,Consolas,monospace;letter-spacing:.16em;text-transform:uppercase;}
+  .sample-apply-cta h3{margin:0;font:600 20px/1.45 "Songti SC","SimSun",serif;letter-spacing:.06em;}
+  .sample-apply-cta p{margin:9px auto 17px;max-width:520px;color:var(--ink-dim);font-size:11px;line-height:1.75;}
+  #applyFromSample{padding:13px 20px;border:0;border-radius:5px;color:#fcfaf5;background:var(--accent);font:12px/1.2 inherit;letter-spacing:.06em;cursor:pointer;box-shadow:0 8px 20px rgba(143,67,57,.18);}
   @media (max-width:700px){
     #continueFeedback{top:58px;width:max-content;max-width:calc(100vw - 28px);padding:9px 12px;font-size:10px;}
     #sampleReportNotice{padding:15px;}
@@ -1001,14 +1009,15 @@
     .wheel-item.selected{font-size:17px;}
     .wheel-col .wheel-marker{height:38px;}
     #submitBirth{margin-top:24px;padding:14px;font-size:14px;}
-    #reportChoice{bottom:20px;width:calc(100% - 28px);}
-    .report-request-invite{grid-template-columns:1fr;padding:15px 16px;gap:11px;}
+    #reportChoice{bottom:20px;width:calc(100% - 28px);max-height:calc(100svh - 82px);overflow-y:auto;}
+    .report-request-invite{padding:15px 16px;}
     .report-invite-title{font-size:14px;}
     .report-invite-copy{font-size:9px;}
     .choice-quick-actions{justify-content:space-between;}
-    .report-invite-actions{width:100%;min-width:0;grid-template-columns:1fr 1fr;}
-    #openReportRequest{width:100%;min-width:0;padding:11px 14px;}
-    #continueWithoutReport{padding:10px 8px;}
+    .report-invite-actions{width:100%;grid-template-columns:1fr;gap:7px;margin-top:12px;}
+    .report-choice-action{min-height:0;padding:10px 12px;}
+    .report-choice-action span{margin-bottom:4px;}
+    .report-choice-action small{margin-top:3px;}
     .report-btn{width:100%;padding:14px 20px;}
     .report-btn .btn-title{font-size:15px;}
     .report-section{padding:28px 18px 40px;}
@@ -1369,34 +1378,41 @@
         <span class="report-slip">专业版</span><i></i><span class="report-slip">大白话版</span>
       </div>
       <h2 class="report-invite-title" id="reportInviteTitle">你的真实命盘已经排好</h2>
-      <p class="report-invite-copy">现在可以直接继续看命盘；如需两份完整人工大报告，制作约需24～48小时，完成后通过邮箱通知。</p>
+      <p class="report-invite-copy">先选你现在想看的内容。人工大报告也会先让你浏览完整成品模板，确认呈现方式后再决定是否申请。</p>
       <div class="choice-quick-actions">
         <button id="openProfileFromChoice" type="button">进入个人中心</button>
         <button id="restartBirthInput" type="button">重新输入出生资料</button>
       </div>
     </div>
-    <div class="report-invite-actions">
-      <button id="openReportRequest" type="button">申请人工大报告</button>
-      <button id="continueWithoutReport" type="button">暂时不申请，继续看命盘 →</button>
+    <div class="report-invite-actions" role="group" aria-label="选择报告查看方式">
+      <button class="report-choice-action" id="openReportRequest" type="button">
+        <span>人工 · 24～48小时</span><strong>先看模板，再申请大报告</strong><small>看过完整成品的呈现方式，满意后再验证邮箱</small>
+      </button>
+      <button class="report-choice-action" id="openBasicReport" type="button">
+        <span>电脑 · 立即生成</span><strong>查看基础解读</strong><small>按你的真实命盘，自动给出最基础的通俗翻译</small>
+      </button>
+      <button class="report-choice-action" id="continueWithoutReport" type="button">
+        <span>样本 · 无需邮箱</span><strong>只看完整模板</strong><small>不申请、不填写资料，先浏览大报告的成品样式</small>
+      </button>
     </div>
   </section>
 </div>
 
 <div id="continueFeedback" role="status" aria-live="polite" aria-atomic="true">
-  <strong>已跳过申请</strong><span>正在进入三层命盘全览</span>
+  <strong>选择已确认</strong><span>正在打开对应内容</span>
 </div>
 
 <div id="sampleReportNotice" aria-hidden="true">
   <section role="dialog" aria-modal="true" aria-labelledby="sampleReportNoticeTitle">
     <p class="sample-notice-kicker">Sample report</p>
-    <h2 id="sampleReportNoticeTitle">当前展示的是样本报告</h2>
-    <p>下面的详细文字只用于浏览报告的结构、表达方式和内容深度，不是根据你本次出生资料生成的个人大报告。</p>
+    <h2 id="sampleReportNoticeTitle">先看完整大报告模板</h2>
+    <p>下面的详细文字只用于浏览报告的结构、表达方式和内容深度，不是根据你本次出生资料生成的个人大报告。浏览模板不需要邮箱。</p>
     <div class="sample-notice-facts">
       <span><strong>真实部分</strong>刚才按出生年月日、时间和性别生成的命盘</span>
       <span><strong>样本部分</strong>进入报告后展示的详细解读文字与案例</span>
     </div>
     <p class="sample-notice-wait">个人专属大报告需要人工制作，约需24～48小时，完成后通过邮箱通知。</p>
-    <button id="acknowledgeSampleReport" type="button">我知道了，继续浏览样本</button>
+    <button id="acknowledgeSampleReport" type="button">继续浏览完整模板</button>
   </section>
 </div>
 
@@ -2083,24 +2099,23 @@ function buildLayerStageReports(chart,type){
 }
 
 function buildReport(chart, type){
-  var showingExistingSample = !chart.isDemoSample;
-  if(showingExistingSample && !DEMO_SAMPLE_CHART) DEMO_SAMPLE_CHART = buildDemoSampleChart();
-  var fullReportChart = showingExistingSample ? DEMO_SAMPLE_CHART : chart;
-  var fullReport = type === 'professional' ? buildProfessionalReport(fullReportChart) : buildPlainReport(fullReportChart);
-  var reportName = showingExistingSample
-    ? '完整报告成品示例'
-    : (type === 'professional' ? '专业总报告' : '通俗总报告');
-  var introCopy = showingExistingSample
-    ? '上面的十二宫与三层命盘来自你刚提交的出生资料；下面暂时保留现有详细样稿，让你先看清完整报告的结构与深度。'
-    : '前三层分别回答长期、今年和当下；下面把三层叠加后，再按身体、事业钱与关系三条主线展开。';
-  var sampleNotice = showingExistingSample
-    ? '<div class="report-callout"><strong>请注意：</strong>以下是现有完整报告样例，仅展示成品形式，不对应你刚生成的真实命盘。与你本人命盘对应的专业版和大白话版，需要申请后另行制作。</div>'
-    : '';
-  return buildLayerStageReports(chart,type)
+  var mode = state.reportMode || 'sample';
+  if(mode === 'basic'){
+    return buildLayerStageReports(chart,'plain')
+      + '<section class="combined-report" id="totalReportStart" data-report-section="total">'
+      + '<div class="combined-report-intro"><div class="eyebrow">COMPUTER · 即时生成</div><h2>电脑基础解读</h2>'
+      + '<p>前三层和下面的文字都按你本次生成的真实命盘自动翻译，适合立即了解基本结构；它没有经过人工逐宫细化。</p></div>'
+      + '<div class="report-callout"><strong>范围说明：</strong>这是电脑按固定规则生成的基础版本，不是人工大报告，也不会替代医疗、投资或其他专业判断。</div>'
+      + buildDynamicPlainReport(chart) + '</section>';
+  }
+  if(!DEMO_SAMPLE_CHART) DEMO_SAMPLE_CHART = buildDemoSampleChart();
+  var fullReport = buildPlainReport(DEMO_SAMPLE_CHART,false);
+  return buildLayerStageReports(chart,'plain')
     + '<section class="combined-report" id="totalReportStart" data-report-section="total">'
-    + '<div class="combined-report-intro"><div class="eyebrow">FOURTH · 三层合读</div><h2>' + reportName + '</h2>'
-    + '<p>' + introCopy + '</p></div>'
-    + sampleNotice + fullReport + '</section>';
+    + '<div class="combined-report-intro"><div class="eyebrow">SAMPLE · 完整成品模板</div><h2>完整大报告呈现示例</h2>'
+    + '<p>这是固定案例的完整样本，用来展示篇幅、结构和大白话表达方式；不对应你刚生成的真实命盘，也不需要填写邮箱。</p></div>'
+    + '<div class="report-callout"><strong>请注意：</strong>左侧仍是你本次排出的真实命盘，以下详细文字是固定样本。个人专属的专业版与大白话版，需要看过模板后再申请人工制作。</div>'
+    + fullReport + reportApplicationAction() + reportProfileAction() + '</section>';
 }
 
 function chartPalace(chart, key){
@@ -2130,6 +2145,10 @@ function inputSummary(chart){
 
 function reportProfileAction(){
   return '<div class="report-next"><button class="primary-action" id="enterProfile">进入个人中心</button></div>';
+}
+
+function reportApplicationAction(){
+  return '<aside class="sample-apply-cta"><div class="eyebrow">MANUAL REPORT · 24～48小时</div><h3>已经了解呈现方式？</h3><p>确认需要与你本人命盘对应的专业版和大白话版后，再提交邮箱验证。完成时邮件只发送通知。</p><button id="applyFromSample" type="button">申请我的人工大报告</button></aside>';
 }
 
 function buildDynamicProfessionalReport(chart){
@@ -2232,10 +2251,10 @@ function buildDynamicPlainReport(chart){
   var couple = chartPalace(chart,'夫');
   var friends = chartPalace(chart,'友');
   var html = '';
-  html += '<div class="report-title">报告二｜完全大白话版</div>';
-  html += '<div class="report-subtitle">输入联动演示 · ' + chart.currentYear + ' 年</div>';
-  html += '<div class="report-callout"><strong>先说清楚：</strong>你已经修改了默认案例。下面文字会跟着当前模拟盘变化，但它只用于演示产品流程，不是真实算命结果。</div>';
-  html += '<div class="plain-section"><h3><span class="sec-num">01</span>你大概是什么结构</h3><p class="report-copy">当前模拟命宫在<strong>' + ming.palaceName + '</strong>，主要星曜显示为<strong>' + starSummary(ming) + '</strong>。大白话理解是：先观察自己的行动习惯，再决定用什么方式推进事情。</p></div>';
+  html += '<div class="report-title">电脑基础解读｜大白话版</div>';
+  html += '<div class="report-subtitle">根据本次真实命盘自动翻译 · ' + chart.currentYear + ' 年</div>';
+  html += '<div class="report-callout"><strong>先说清楚：</strong>下面内容由电脑按照固定规则逐项翻译你的宫位与星曜，能快速看懂基础结构，但没有经过人工逐宫校对和细化。</div>';
+  html += '<div class="plain-section"><h3><span class="sec-num">01</span>你大概是什么结构</h3><p class="report-copy">当前命宫在<strong>' + ming.palaceName + '</strong>，主要星曜显示为<strong>' + starSummary(ming) + '</strong>。大白话理解是：先观察自己的行动习惯，再决定用什么方式推进事情。</p></div>';
   html += '<div class="plain-section"><h3><span class="sec-num">02</span>今年身体怎么保底</h3><p class="report-copy">疾厄宫显示为' + starSummary(health) + '。不要把它当疾病诊断；真正有用的是记录睡眠、疼痛、外出和恢复之间的关系。</p></div>';
   html += '<div class="plain-section"><h3><span class="sec-num">03</span>事业从哪里推进</h3><p class="report-copy">事业宫显示为' + starSummary(career) + '。今年先把机会拆成作品、项目、平台、证书和客户五类，再看哪一类有真实反馈。</p></div>';
   html += '<div class="plain-section"><h3><span class="sec-num">04</span>钱应该怎么管理</h3><p class="report-copy">财帛宫显示为' + starSummary(money) + '。预算、报价、合同、交付边界和分成规则，都要先写清再行动。</p></div>';
@@ -2243,10 +2262,10 @@ function buildDynamicPlainReport(chart){
   html += '<div class="plain-section"><h3><span class="sec-num">06</span>哪些人带机会</h3><p class="report-copy">交友宫显示为' + starSummary(friends) + '。优先保留能提供信息、资源、反馈并愿意共同承担责任的人。</p></div>';
   html += '<div class="plain-section"><h3><span class="sec-num">07</span>三层时间怎么叠加</h3><p class="report-copy">大运在<strong>' + major.palaceName + '</strong>，小限在<strong>' + small.palaceName + '</strong>，流年在<strong>' + yearly.palaceName + '</strong>。上方三盘分别显示它们的三方四正，帮助你区分长期背景和短期波动。</p></div>';
   html += '<div class="plain-section"><h3><span class="sec-num">08</span>最重要的行动清单</h3><ol class="action-list">';
-  ['先记录事实，再解释原因。','身体异常以专业检查为准。','只保留一个本月事业重点。','给必要支出设置上限。','合作前写清职责和交付。','关系推进看长期行动。','每周整理一次作品和资料。','减少同时启动的项目数量。','月底复盘一次三条主轴。','重大决定不依赖本演示报告。'].forEach(function(item){ html += '<li>' + item + '</li>'; });
+  ['先记录事实，再解释原因。','身体异常以专业检查为准。','只保留一个本月事业重点。','给必要支出设置上限。','合作前写清职责和交付。','关系推进看长期行动。','每周整理一次作品和资料。','减少同时启动的项目数量。','月底复盘一次三条主轴。','重大决定不依赖本基础解读。'].forEach(function(item){ html += '<li>' + item + '</li>'; });
   html += '</ol></div>';
   html += '<div class="report-callout"><strong>大白话最终结论：</strong>身体先稳住，事业钱靠可复用成果推进，关系只相信能够长期兑现的行动。</div>';
-  html += '<div class="disclaimer">※ 本页为输入联动底模，不是实际排盘；仅供传统文化体验与娱乐参考</div>';
+  html += '<div class="disclaimer">※ 本页为电脑基础解读，仅供紫微斗数文化体验与娱乐参考，不替代医疗、心理、法律、投资等专业建议</div>';
   html += reportProfileAction();
   return html;
 }
@@ -2511,7 +2530,7 @@ function buildProfessionalReport(chart){
   return html;
 }
 
-function buildPlainReport(chart){
+function buildPlainReport(chart,includeProfile){
   if(!chart.isDemoSample) return buildDynamicPlainReport(chart);
   var html = '';
   html += '<div class="report-title">报告二｜完全大白话版</div>';
@@ -2678,7 +2697,7 @@ function buildPlainReport(chart){
   html += '</div>';
 
   html += '<div class="disclaimer">※ 本报告基于产品底模演示样稿生成，仅供体验与娱乐参考，不替代医疗、心理、法律、投资等专业建议</div>';
-  html += reportProfileAction();
+  if(includeProfile !== false) html += reportProfileAction();
   return html;
 }
 
@@ -2692,6 +2711,8 @@ var state = {
   chart: null,
   generatedChart: null,
   reportType: null,
+  reportMode: null,
+  reportIntent: null,
   arrangingProgress: 0,
   arrangingElapsed: 0,
   introElapsed: 0,
@@ -5865,6 +5886,8 @@ function openReportView(){
   buildReportToc();
   var profileButton = document.getElementById('enterProfile');
   if(profileButton) profileButton.addEventListener('click', function(){ openProfileView('report-view'); });
+  var applicationButton = document.getElementById('applyFromSample');
+  if(applicationButton) applicationButton.addEventListener('click',openReportRequestPanel);
   var scroller = getReportScroller();
   if(scroller) scroller.scrollTop = 0;
   setReportStageActive('overview');
@@ -6323,6 +6346,9 @@ function restartBirthInputFlow(){
   hideReportToc();
   setReportScrolling(false);
   state.current = 'birth-input';
+  state.reportType = null;
+  state.reportMode = null;
+  state.reportIntent = null;
   state.chartShape = 'spiral';
   state.flatFacingProgress = 0;
   state.spiralOffsetX = 0;
@@ -6388,19 +6414,39 @@ function openReportRequestPanel(){
   setTimeout(function(){ document.getElementById('reportEmail').focus(); },280);
 }
 
-function continueWithoutReportRequest(reportSubmitted){
-  state.reportType = 'plain';
-  setState('report-view');
+function showReportChoiceFeedback(title,detail){
   var feedback = document.getElementById('continueFeedback');
-  feedback.querySelector('strong').textContent = reportSubmitted ? '大报告已进入队列' : '暂时不申请';
-  feedback.querySelector('span').textContent = reportSubmitted ? '继续看真实命盘，完成后会邮件通知' : '正在打开按出生资料排出的真实命盘';
+  feedback.querySelector('strong').textContent = title;
+  feedback.querySelector('span').textContent = detail;
   feedback.classList.remove('visible');
   window.clearTimeout(continueFeedbackTimer);
   requestAnimationFrame(function(){ feedback.classList.add('visible'); });
   continueFeedbackTimer = window.setTimeout(function(){
     feedback.classList.remove('visible');
   },2600);
+}
+
+function openSampleReport(wantsHumanReport){
+  state.reportType = 'plain';
+  state.reportMode = 'sample';
+  state.reportIntent = wantsHumanReport ? 'human' : 'browse';
+  setState('report-view');
+  showReportChoiceFeedback(
+    wantsHumanReport ? '先看成品模板' : '无需申请',
+    wantsHumanReport ? '浏览后可在模板末尾申请人工大报告' : '正在打开完整大报告模板'
+  );
   showSampleReportNotice();
+}
+
+function openBasicComputerReport(reportSubmitted){
+  state.reportType = 'plain';
+  state.reportMode = 'basic';
+  state.reportIntent = reportSubmitted ? 'submitted' : 'browse';
+  setState('report-view');
+  showReportChoiceFeedback(
+    reportSubmitted ? '大报告已进入队列' : '基础解读已生成',
+    reportSubmitted ? '等待期间继续看电脑基础解读' : '内容来自你本次排出的真实命盘'
+  );
 }
 
 function showSampleReportNotice(){
@@ -6414,7 +6460,12 @@ function hideSampleReportNotice(restoreFocus){
   var notice = document.getElementById('sampleReportNotice');
   notice.classList.remove('visible');
   notice.setAttribute('aria-hidden','true');
-  if(restoreFocus !== false) document.getElementById('reportBack').focus();
+  if(restoreFocus !== false){
+    document.getElementById('reportBack').focus();
+    if(state.current === 'report-view' && state.reportMode === 'sample'){
+      requestAnimationFrame(function(){ scrollToReportStage('total'); });
+    }
+  }
 }
 
 function closeReportRequestPanel(restoreFocus){
@@ -6422,12 +6473,15 @@ function closeReportRequestPanel(restoreFocus){
   document.getElementById('reportRequestBackdrop').classList.remove('visible');
   panel.classList.remove('visible');
   panel.setAttribute('aria-hidden','true');
-  if(restoreFocus !== false) document.getElementById('openReportRequest').focus();
+  if(restoreFocus !== false){
+    var returnButton = document.getElementById('applyFromSample') || document.getElementById('openReportRequest');
+    if(returnButton) returnButton.focus();
+  }
 }
 
 function continueAfterReportRequest(){
   closeReportRequestPanel(false);
-  continueWithoutReportRequest(true);
+  openBasicComputerReport(true);
 }
 
 async function sendReportVerification(){
@@ -6511,8 +6565,9 @@ async function copyReportStatusUrl(){
 // ============================================================
 
 document.getElementById('submitBirth').addEventListener('click', function(){ void submitBirthAndArrange(); });
-document.getElementById('openReportRequest').addEventListener('click',openReportRequestPanel);
-document.getElementById('continueWithoutReport').addEventListener('click',function(){ continueWithoutReportRequest(false); });
+document.getElementById('openReportRequest').addEventListener('click',function(){ openSampleReport(true); });
+document.getElementById('openBasicReport').addEventListener('click',function(){ openBasicComputerReport(false); });
+document.getElementById('continueWithoutReport').addEventListener('click',function(){ openSampleReport(false); });
 document.getElementById('openProfileFromChoice').addEventListener('click',function(){ openProfileView('report-choice'); });
 document.getElementById('restartBirthInput').addEventListener('click',restartBirthInputFlow);
 document.getElementById('profileRestartBirth').addEventListener('click',restartBirthInputFlow);
@@ -6594,6 +6649,8 @@ window.__ZIWEI_FLOW_TEST__ = {
       birthInput: JSON.parse(JSON.stringify(state.birthInput)),
       hasChart: !!state.chart,
       reportType: state.reportType,
+      reportMode: state.reportMode,
+      reportIntent: state.reportIntent,
       chartShape: state.chartShape,
       arrangingProgress: state.arrangingProgress,
       threeLayerProgress: state.threeLayerProgress,
@@ -6642,9 +6699,8 @@ window.__ZIWEI_FLOW_TEST__ = {
       setState('report-choice');
     }
     if(state.current === 'report-choice'){
-      state.reportType = type || 'plain';
-      setState('report-view');
-      showSampleReportNotice();
+      if(type === 'basic') openBasicComputerReport(false);
+      else openSampleReport(type === 'human');
     }
     return state.current;
   },
