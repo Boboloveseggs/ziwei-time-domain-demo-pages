@@ -245,7 +245,7 @@
   .lunar-leap-row.visible{display:flex;}
   .lunar-leap-row input{accent-color:var(--accent);}
 
-  /* ---------- 人工报告申请入口 ---------- */
+  /* ---------- AI 大报告申请入口 ---------- */
   #reportChoice{
     position:fixed;z-index:8;left:50%;bottom:clamp(24px,4vh,42px);
     transform:translate(-50%,60px);
@@ -1394,7 +1394,7 @@
   <div class="mock-note" id="birthPanelNote" role="status" aria-live="polite">本地真实排盘 · 公历／农历可切换<br/>排盘完成后再决定是否申请完整报告</div>
 </div>
 
-<!-- 人工报告申请入口 -->
+<!-- AI 大报告申请入口 -->
 <div id="reportChoice">
   <section class="report-request-invite" aria-labelledby="reportInviteTitle">
     <div>
@@ -1402,7 +1402,7 @@
         <span class="report-slip">专业版</span><i></i><span class="report-slip">大白话版</span>
       </div>
       <h2 class="report-invite-title" id="reportInviteTitle">你的真实命盘已经排好</h2>
-      <p class="report-invite-copy">先选你现在想看的内容。人工大报告也会先让你浏览完整成品模板，确认呈现方式后再决定是否申请。</p>
+      <p class="report-invite-copy">先选你现在想看的内容。超级详细 AI 大报告也会先让你浏览完整成品模板，确认呈现方式后再决定是否申请。</p>
       <div class="choice-quick-actions">
         <button id="openProfileFromChoice" type="button">进入个人中心</button>
         <button id="restartBirthInput" type="button">重新输入出生资料</button>
@@ -1410,7 +1410,7 @@
     </div>
     <div class="report-invite-actions" role="group" aria-label="选择报告查看方式">
       <button class="report-choice-action" id="openReportRequest" type="button">
-        <span>人工 · 24～48小时</span><strong>先看模板，再申请大报告</strong><small>看过完整成品的呈现方式，满意后再验证邮箱</small>
+        <span>AI 深度生成 · 24～48小时</span><strong>超级详细 AI 大报告</strong><small>专业版＋大白话版 · 最高可长达20页</small>
       </button>
       <button class="report-choice-action" id="openBasicReport" type="button">
         <span>电脑 · 立即生成</span><strong>查看基础解读</strong><small>按你的真实命盘，自动给出最基础的通俗翻译</small>
@@ -1435,7 +1435,7 @@
       <span><strong>真实部分</strong>刚才按出生年月日、时间和性别生成的命盘</span>
       <span><strong>样本部分</strong>进入报告后展示的详细解读文字与案例</span>
     </div>
-    <p class="sample-notice-wait">个人专属的专业版与大白话版，需要看过模板后再申请人工制作，约需24～48小时。</p>
+    <p class="sample-notice-wait">个人专属的专业版与大白话版 AI 大报告，需要看过模板后再申请深度生成，最高可长达20页，约需24～48小时。</p>
     <button id="acknowledgeSampleReport" type="button">我已知晓：下面是固定样本，不是我的报告</button>
   </section>
 </div>
@@ -1445,9 +1445,9 @@
   <button class="request-close" id="closeReportRequest" type="button" aria-label="关闭报告申请">×</button>
 
   <div id="reportRequestForm">
-    <p class="request-kicker">Manual report request</p>
-    <h2 class="request-title" id="reportRequestTitle">把命盘交给人工解读</h2>
-    <p class="request-lead">当前命盘已经按你输入的出生资料真实排好，可以随时继续浏览。提交申请后，我们会以同一份命盘人工制作两种表达版本，约需24～48小时，完成后再通过邮箱通知。</p>
+    <p class="request-kicker">AI report · Up to 20 pages</p>
+    <h2 class="request-title" id="reportRequestTitle">生成超级详细 AI 大报告</h2>
+    <p class="request-lead">当前命盘已经按你输入的出生资料真实排好，可以随时继续浏览。提交申请后，将基于同一份命盘深度生成专业版与大白话版，最高可长达20页，约需24～48小时，完成后再通过邮箱通知。</p>
 
     <div class="request-editions" aria-label="报告版本">
       <div class="request-edition"><strong>专业版</strong><span>保留命宫、星曜、四化与运限结构</span></div>
@@ -1470,10 +1470,10 @@
 
     <label class="request-consent">
       <input id="reportConsent" type="checkbox" />
-      <span>我同意本服务为排盘、人工制作及交付紫微斗数文化体验报告，处理我提交的邮箱、出生日期时间、历法和性别，并将任务编号、出生日期时间、历法和性别发送至报告制作邮箱。资料不会用于其他用途，并将在报告交付后30天内删除。若提交他人资料，我确认已经取得本人或监护人授权。</span>
+      <span>我同意本服务为排盘、AI 深度生成及交付紫微斗数文化体验报告，处理我提交的邮箱、出生日期时间、历法和性别，并将任务编号、出生日期时间、历法和性别发送至报告制作邮箱。资料不会用于其他用途，并将在报告交付后30天内删除。若提交他人资料，我确认已经取得本人或监护人授权。</span>
     </label>
 
-    <button id="submitReportRequest" type="button">提交人工报告申请</button>
+    <button id="submitReportRequest" type="button">提交 AI 大报告申请</button>
     <p id="reportRequestMessage" role="status" aria-live="polite"></p>
     <p class="request-disclaimer">本服务为传统文化体验内容，仅供娱乐与自我观察参考，不替代医疗、心理、法律或投资等专业建议。你可以通过私密报告页提前删除资料。<a href="https://ziwei-time-domain.thanks1900ss.chatgpt.site/privacy" target="_top">查看个人信息处理说明</a></p>
   </div>
@@ -1482,7 +1482,7 @@
     <div class="success-mark">已收</div>
     <p class="request-kicker">Request received</p>
     <h2 class="request-title">报告任务已经建立</h2>
-    <p class="request-lead">人工大报告已经进入制作队列，约需24～48小时。你现在可以继续浏览自己的真实命盘；报告完成后会通过邮箱通知，出生资料不会出现在用户邮件正文。</p>
+    <p class="request-lead">超级详细 AI 大报告已经进入深度生成队列，最高可长达20页，约需24～48小时。你现在可以继续浏览自己的真实命盘；报告完成后会通过邮箱通知，出生资料不会出现在用户邮件正文。</p>
     <div class="success-task"><span>报告任务编号</span><strong id="reportTaskNumber">—</strong></div>
     <button id="continueAfterReportRequest" type="button">继续看我的真实命盘</button>
     <a id="openReportStatus" href="#" target="_top">查看私密任务页</a>
@@ -1593,9 +1593,9 @@
 <!-- 报告内容 -->
 <div id="reportView">
   <button id="sampleReportApplyFloat" type="button" aria-hidden="true">
-    <span>Manual report</span>
-    <strong>申请人工大报告</strong>
-    <small>专业版＋大白话版 · 约24～48小时</small>
+    <span>AI report</span>
+    <strong>申请超级详细 AI 大报告</strong>
+    <small>专业版＋大白话版 · 最高可长达20页</small>
   </button>
   <button class="report-back" id="reportBack">← 返回选择</button>
   <button id="reportPanelToggle" type="button" aria-controls="reportPanel" aria-expanded="true" aria-label="收起报告" title="收起报告">
@@ -2133,8 +2133,8 @@ function buildReport(chart, type){
     return buildLayerStageReports(chart,'plain')
       + '<section class="combined-report" id="totalReportStart" data-report-section="total">'
       + '<div class="combined-report-intro"><div class="eyebrow">COMPUTER · 即时生成</div><h2>电脑基础解读</h2>'
-      + '<p>前三层和下面的文字都按你本次生成的真实命盘自动翻译，适合立即了解基本结构；它没有经过人工逐宫细化。</p></div>'
-      + '<div class="report-callout"><strong>范围说明：</strong>这是电脑按固定规则生成的基础版本，不是人工大报告，也不会替代医疗、投资或其他专业判断。</div>'
+      + '<p>前三层和下面的文字都按你本次生成的真实命盘自动翻译，适合立即了解基本结构；它没有经过 AI 逐宫深度扩写与完整排版。</p></div>'
+      + '<div class="report-callout"><strong>范围说明：</strong>这是电脑按固定规则生成的基础版本，不是最高可长达20页的超级详细 AI 大报告，也不会替代医疗、投资或其他专业判断。</div>'
       + buildDynamicPlainReport(chart) + '</section>';
   }
   if(!DEMO_SAMPLE_CHART) DEMO_SAMPLE_CHART = buildDemoSampleChart();
@@ -2177,7 +2177,7 @@ function reportProfileAction(){
 }
 
 function reportApplicationAction(){
-  return '<aside class="sample-apply-cta"><div class="eyebrow">MANUAL REPORT · 24～48小时</div><h3>已经了解呈现方式？</h3><p>确认需要与你本人命盘对应的专业版和大白话版后，再提交邮箱验证。完成时邮件只发送通知。</p><button id="applyFromSample" type="button">申请我的人工大报告</button></aside>';
+  return '<aside class="sample-apply-cta"><div class="eyebrow">AI REPORT · 最高可长达20页</div><h3>已经了解呈现方式？</h3><p>确认需要与你本人命盘对应的专业版和大白话版 AI 大报告后，再提交邮箱验证。完成时邮件只发送通知。</p><button id="applyFromSample" type="button">申请我的超级详细 AI 大报告</button></aside>';
 }
 
 function buildDynamicProfessionalReport(chart){
@@ -2301,7 +2301,7 @@ function buildDynamicPlainReport(chart){
   var html = '';
   html += '<div class="report-title">电脑基础解读｜大白话版</div>';
   html += '<div class="report-subtitle">根据本次真实命盘自动翻译 · ' + chart.currentYear + ' 年</div>';
-  html += '<div class="report-callout"><strong>阅读方式：</strong>下面每项先给方向，再列出几种可能表现、判断标准和具体做法。它不会把单一星曜写成只有对错的剧情，也没有经过人工逐宫校对和细化。</div>';
+  html += '<div class="report-callout"><strong>阅读方式：</strong>下面每项先给方向，再列出几种可能表现、判断标准和具体做法。它不会把单一星曜写成只有对错的剧情，也没有经过 AI 逐宫深度扩写与完整排版。</div>';
   html += buildDecisionTreeSection('01','你大概是什么结构',{
     core:'命宫落在<strong>' + ming.palaceName + '</strong>，主要星曜为<strong>' + starSummary(ming) + '</strong>。你的行动状态更容易受到“这件事是否值得、规则是否讲得通”的影响。',
     forms:'可能表现为先观察再行动、在逻辑清楚时推进很快，或者面对反复修改和无意义流程时明显失去耐心。',
@@ -2933,7 +2933,7 @@ function updateHudVisibility(){
   } else if(state.current === 'arranging'){
     hint.textContent = '排盘中…';
   } else if(state.current === 'report-choice'){
-    hint.textContent = '真实命盘已生成 · 可继续探索，或申请两份完整人工报告';
+    hint.textContent = '真实命盘已生成 · 可继续探索，或申请最高可长达20页的超级详细 AI 大报告';
   } else if(state.current === 'report-view'){
     hint.textContent = '左侧转动三层命盘 · 右侧分层阅读报告';
   } else if(state.current === 'profile'){
@@ -6540,7 +6540,7 @@ function openSampleReport(wantsHumanReport){
   setState('report-view');
   showReportChoiceFeedback(
     wantsHumanReport ? '先看成品模板' : '无需申请',
-    wantsHumanReport ? '浏览后可在模板末尾申请人工大报告' : '正在打开完整大报告模板'
+    wantsHumanReport ? '浏览后可在模板末尾申请超级详细 AI 大报告' : '正在打开完整大报告模板'
   );
   showSampleReportNotice();
 }
@@ -6665,7 +6665,7 @@ async function createReportRequest(){
     message.textContent = error && error.message ? error.message : '报告申请失败';
   }finally{
     button.disabled = false;
-    button.textContent = '提交人工报告申请';
+    button.textContent = '提交 AI 大报告申请';
   }
 }
 
