@@ -5703,7 +5703,7 @@ function syncReportToc(){
 
 function syncReportHeroChrome(){
   var show = state.current === 'report-view';
-  var reading = show && reportStageActive !== 'overview';
+  var stagedReading = show && reportStageLayerIndex() >= 0;
   var totalReading = show && reportStageActive === 'total' && window.scrollY > window.innerHeight*0.24;
   document.body.classList.toggle('total-report-reading',totalReading);
   if(totalReading && !reportTocAutoOpened && window.innerWidth >= 1280){
@@ -5711,7 +5711,8 @@ function syncReportHeroChrome(){
     openReportToc();
   }
   document.getElementById('layerHint').classList.toggle('visible',show && !totalReading);
-  document.getElementById('scrollCue').classList.toggle('visible',reading && !totalReading);
+  // 已经进入综合报告时不再显示“查看综合报告”，避免平滑滚动期间压住命盘文字。
+  document.getElementById('scrollCue').classList.toggle('visible',stagedReading);
   document.getElementById('currentShortcut').classList.toggle('visible',reportStageLayerIndex() >= 0);
   document.getElementById('modeToggle').classList.toggle('visible',show && !totalReading);
   syncReportPanelToggle();
