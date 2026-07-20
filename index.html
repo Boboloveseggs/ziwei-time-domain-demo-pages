@@ -124,6 +124,14 @@
   }
   #savedProfileCard.visible{display:grid;}
   .saved-profile-kicker{color:var(--accent);font-size:9px;letter-spacing:.16em;text-transform:uppercase;}
+  .report-lookup-entry{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;margin:-8px 0 24px;padding:12px 14px;
+    border:1px solid rgba(143,67,57,.28);border-radius:5px;color:var(--accent);background:rgba(143,67,57,.055);
+    font-size:10px;line-height:1.5;text-decoration:none;transition:border-color .18s ease,background .18s ease;
+  }
+  .report-lookup-entry::after{content:'→';font-size:16px;}
+  .report-lookup-entry:hover{border-color:var(--accent);background:rgba(143,67,57,.1);}
+  .report-lookup-entry:focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
   #savedProfileSummary{display:block;margin-top:4px;color:var(--ink);font-size:11px;line-height:1.55;}
   #resumeSavedProfile{
     grid-column:2;grid-row:1 / span 2;padding:10px 12px;border:1px solid var(--accent);border-radius:5px;
@@ -401,24 +409,6 @@
   .request-edition strong{display:block;font-family:"Songti SC","SimSun",serif;font-size:14px;}
   .request-edition span{display:block;color:var(--ink-dim);font-size:9px;line-height:1.5;}
   .request-edition small{display:block;margin-top:5px;color:var(--ink-dim);font-size:9px;line-height:1.5;}
-  .request-field{display:grid;gap:7px;margin-top:16px;}
-  .request-field > span{font-size:11px;color:var(--ink-dim);}
-  .request-field input{
-    box-sizing:border-box;width:100%;padding:13px 14px;border:1px solid var(--line);
-    border-radius:4px;color:var(--ink);background:#fffdf8;font:13px/1.4 inherit;outline:none;
-  }
-  .request-field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(143,67,57,.08);}
-  .verification-row{display:grid;grid-template-columns:1fr auto;gap:8px;}
-  #sendReportCode{
-    padding:0 14px;border:1px solid var(--line);border-radius:4px;
-    color:var(--accent);background:transparent;font:11px/1.2 inherit;cursor:pointer;
-  }
-  #sendReportCode:disabled{opacity:.55;cursor:wait;}
-  #reportDebugCode{
-    display:none;margin:9px 0 0;padding:9px 11px;border-left:2px solid var(--blue);
-    color:var(--ink-dim);background:rgba(107,129,150,.08);font-size:10px;line-height:1.6;
-  }
-  #reportDebugCode.visible{display:block;}
   .request-consent{
     display:grid;grid-template-columns:auto 1fr;gap:9px;margin-top:20px;
     color:var(--ink-dim);font-size:10px;line-height:1.65;cursor:pointer;
@@ -434,6 +424,11 @@
   .request-disclaimer{margin:24px 0 0;padding-top:18px;border-top:1px solid var(--line);color:var(--ink-dim);font-size:9px;line-height:1.7;}
   #reportRequestSuccess{display:none;}
   #reportRequestSuccess.visible{display:block;}
+  .success-credential{display:grid;grid-template-columns:1fr 1fr;gap:1px;margin-top:22px;border:1px solid var(--line);background:var(--line);}
+  .success-task{margin:0!important;border:0!important;background:#fffdf8!important;}
+  .success-task strong{overflow-wrap:anywhere;}
+  .success-save-note{margin:14px 0 0;padding:12px 14px;border-left:3px solid var(--accent);color:var(--ink);background:rgba(143,67,57,.08);font-size:10px;line-height:1.7;}
+  @media(max-width:540px){.success-credential{grid-template-columns:1fr;}}
   #reportRequestForm.hidden{display:none;}
   .success-mark{
     display:grid;width:62px;height:62px;margin:18px 0 24px;place-items:center;
@@ -1337,6 +1332,8 @@
   <div class="hero-zh">出生时间</div>
   <div class="hero-sub">ENTER BIRTH TIME</div>
 
+  <a class="report-lookup-entry" href="https://ziwei-time-domain.thanks1900ss.chatgpt.site/report" target="_top">已有报告？输入任务编号和提取码查询</a>
+
   <section id="savedProfileCard" aria-label="上次保存的命盘">
     <div>
       <span class="saved-profile-kicker">Last saved chart</span>
@@ -1420,7 +1417,7 @@
     </div>
     <div class="report-invite-actions" role="group" aria-label="选择报告查看方式">
       <button class="report-choice-action" id="openReportRequest" type="button">
-        <span>AI 深度生成 · 24～48小时</span><strong>超级详细 AI 大报告</strong><small>专业版 / 大白话版 · 二选一 · 单份最高20页</small>
+        <span>AI 深度生成 · 约一天</span><strong>超级详细 AI 大报告</strong><small>专业版 / 大白话版 · 二选一 · 单份最高20页</small>
       </button>
       <button class="report-choice-action" id="openBasicReport" type="button">
         <span>电脑 · 立即生成</span><strong>查看基础解读</strong><small>按你的真实命盘，自动给出最基础的通俗翻译</small>
@@ -1445,7 +1442,7 @@
       <span><strong>真实部分</strong>刚才按出生年月日、时间和性别生成的命盘</span>
       <span><strong>样本部分</strong>进入报告后展示的详细解读文字与案例</span>
     </div>
-    <p class="sample-notice-wait">个人专属 AI 大报告可选择专业版或大白话版，只能选择一份；所选单份最高可长达20页，约需24～48小时。</p>
+    <p class="sample-notice-wait">个人专属 AI 大报告可选择专业版或大白话版，只能选择一份；所选单份最高可长达20页，预计约一天完成。</p>
     <button id="acknowledgeSampleReport" type="button">我已知晓：下面是固定样本，不是我的报告</button>
   </section>
 </div>
@@ -1457,7 +1454,7 @@
   <div id="reportRequestForm">
     <p class="request-kicker">AI report · Up to 20 pages</p>
     <h2 class="request-title" id="reportRequestTitle">生成超级详细 AI 大报告</h2>
-    <p class="request-lead">当前命盘已经按你输入的出生资料真实排好，可以随时继续浏览。提交申请前请选择专业版或大白话版其中一份；所选单份报告最高可长达20页，约需24～48小时，完成后再通过邮箱通知。</p>
+    <p class="request-lead">当前命盘已经按你输入的出生资料真实排好，可以随时继续浏览。提交申请前请选择专业版或大白话版其中一份；所选单份报告最高可长达20页。无需填写邮箱，提交后请保存查询凭证，约一天后回到网页查看进度与结果。</p>
 
     <fieldset class="request-editions">
       <legend>选择报告版本 · 只能选择一个</legend>
@@ -1465,40 +1462,30 @@
       <label class="request-edition"><input type="radio" name="reportVariant" value="plain" /><span><strong>大白话版</strong><small>把术语翻译成现实观察与行动提示，适合直接阅读和使用</small></span></label>
     </fieldset>
 
-    <label class="request-field">
-      <span>接收完成通知的邮箱</span>
-      <div class="verification-row">
-        <input id="reportEmail" type="email" inputmode="email" autocomplete="email" placeholder="name@example.com" />
-        <button id="sendReportCode" type="button">发送验证码</button>
-      </div>
-    </label>
-    <div id="reportDebugCode" aria-live="polite"></div>
-
-    <label class="request-field">
-      <span>邮箱验证码</span>
-      <input id="reportEmailCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="6位验证码" />
-    </label>
-
     <label class="request-consent">
       <input id="reportConsent" type="checkbox" />
-      <span>我同意本服务为排盘、AI 深度生成并交付我所选择的专业版或大白话版其中一份紫微斗数文化体验报告，处理我提交的邮箱、出生日期时间、历法、性别和报告版本，并将任务编号、出生日期时间、历法、性别和所选报告版本发送至报告制作邮箱。资料不会用于其他用途，并将在报告交付后30天内删除。若提交他人资料，我确认已经取得本人或监护人授权。</span>
+      <span>我同意本服务为排盘、AI 深度生成并交付我所选择的专业版或大白话版其中一份紫微斗数文化体验报告，处理我提交的出生日期时间、历法、性别和报告版本。资料不会用于其他用途，并将在报告交付后30天内删除。若提交他人资料，我确认已经取得本人或监护人授权。</span>
     </label>
 
     <button id="submitReportRequest" type="button">提交 AI 大报告申请</button>
     <p id="reportRequestMessage" role="status" aria-live="polite"></p>
-    <p class="request-disclaimer">本服务为传统文化体验内容，仅供娱乐与自我观察参考，不替代医疗、心理、法律或投资等专业建议。你可以通过私密报告页提前删除资料。<a href="/privacy" target="_top">查看个人信息处理说明</a></p>
+    <p class="request-disclaimer">本服务为传统文化体验内容，仅供娱乐与自我观察参考，不替代医疗、心理、法律或投资等专业建议。你可以通过私密报告页提前删除资料。<a href="https://ziwei-time-domain.thanks1900ss.chatgpt.site/privacy" target="_top">查看个人信息处理说明</a></p>
   </div>
 
   <div id="reportRequestSuccess">
     <div class="success-mark">已收</div>
     <p class="request-kicker">Request received</p>
     <h2 class="request-title">报告任务已经建立</h2>
-    <p class="request-lead">你选择的<strong id="reportSuccessVariant">报告</strong>已经进入深度生成队列，单份最高可长达20页，约需24～48小时。你现在可以继续浏览自己的真实命盘；报告完成后会通过邮箱通知，出生资料不会出现在用户邮件正文。</p>
-    <div class="success-task"><span>报告任务编号</span><strong id="reportTaskNumber">—</strong></div>
+    <p class="request-lead">你选择的<strong id="reportSuccessVariant">报告</strong>已经进入深度生成队列，单份最高可长达20页。无需等待通知，约一天后用下面的凭证回到网页查看；如果仍在制作中，页面会显示最新进度。</p>
+    <div class="success-credential">
+      <div class="success-task"><span>报告任务编号</span><strong id="reportTaskNumber">—</strong></div>
+      <div class="success-task"><span>报告提取码</span><strong id="reportPickupCode">—</strong></div>
+    </div>
+    <p class="success-save-note"><strong>现在请截图保存。</strong>网站不收邮箱，也不会发送通知；遗失查询链接或提取码后无法补发。</p>
     <button id="continueAfterReportRequest" type="button">继续看我的真实命盘</button>
-    <a id="openReportStatus" href="#" target="_top">查看私密任务页</a>
-    <button id="copyReportStatus" type="button">复制私密链接</button>
-    <p class="request-disclaimer">请勿公开转发私密链接。报告交付30天后，链接、报告文件和出生资料会一起失效并删除。</p>
+    <a id="openReportStatus" href="#" target="_top">打开结果查询页</a>
+    <button id="copyReportStatus" type="button">复制查询凭证</button>
+    <p class="request-disclaimer">请勿公开转发查询凭证。报告交付30天后，查询链接、报告文件和出生资料会一起失效并删除。</p>
   </div>
 </aside>
 
@@ -2198,7 +2185,7 @@ function reportProfileAction(){
 }
 
 function reportApplicationAction(){
-  return '<aside class="sample-apply-cta"><div class="eyebrow">AI REPORT · 单份最高20页</div><h3>已经了解呈现方式？</h3><p>可选择专业版或大白话版其中一份；确认需要后再提交邮箱验证，完成时邮件只发送通知。</p><button id="applyFromSample" type="button">选择并申请 AI 大报告</button></aside>';
+  return '<aside class="sample-apply-cta"><div class="eyebrow">AI REPORT · 单份最高20页</div><h3>已经了解呈现方式？</h3><p>可选择专业版或大白话版其中一份；无需邮箱，提交后保存查询凭证，约一天后回到网页查看。</p><button id="applyFromSample" type="button">选择并申请 AI 大报告</button></aside>';
 }
 
 function buildDynamicProfessionalReport(chart){
@@ -6286,8 +6273,36 @@ function backToChoice(){
 
 var birthSubmissionBusy = false;
 var reportStatusUrl = '';
+var REPORT_SERVICE_ORIGIN = /\.chatgpt\.site$/i.test(window.location.hostname)
+  ? window.location.origin
+  : 'https://ziwei-time-domain.thanks1900ss.chatgpt.site';
 var continueFeedbackTimer = 0;
 var reportRequestReturnFocus = null;
+
+function reportServiceUrl(path){
+  return REPORT_SERVICE_ORIGIN + path;
+}
+
+async function readReportServiceJson(response){
+  var body = await response.text();
+  var contentType = response.headers.get('content-type') || '';
+  if(contentType.indexOf('application/json') < 0){
+    throw new Error('报告服务暂未连接，请稍后再试');
+  }
+  try{
+    return JSON.parse(body);
+  }catch(error){
+    throw new Error('报告服务返回了无法识别的数据，请稍后再试');
+  }
+}
+
+function reportServiceErrorMessage(error,fallback){
+  var message = error && error.message ? error.message : '';
+  if(/Unexpected token|Failed to fetch|NetworkError|Load failed/i.test(message)){
+    return '报告服务暂未连接，请稍后再试';
+  }
+  return message || fallback;
+}
 
 function browserPalaceKey(name){
   var map = {
@@ -6503,7 +6518,10 @@ function openReportRequestPanel(){
   document.getElementById('reportRequestBackdrop').classList.add('visible');
   panel.classList.add('visible');
   panel.setAttribute('aria-hidden','false');
-  setTimeout(function(){ document.getElementById('reportEmail').focus(); },280);
+  setTimeout(function(){
+    var firstVariant = panel.querySelector('input[name="reportVariant"]');
+    if(firstVariant) firstVariant.focus();
+  },280);
 }
 
 function showReportChoiceFeedback(title,detail){
@@ -6590,39 +6608,6 @@ function continueAfterReportRequest(){
   openBasicComputerReport(true);
 }
 
-async function sendReportVerification(){
-  var email = document.getElementById('reportEmail').value.trim();
-  var button = document.getElementById('sendReportCode');
-  var message = document.getElementById('reportRequestMessage');
-  var debug = document.getElementById('reportDebugCode');
-  button.disabled = true;
-  button.textContent = '生成中…';
-  message.textContent = '';
-  debug.classList.remove('visible');
-  try{
-    var response = await fetch('/api/report-requests/verification',{
-      method:'POST',
-      headers:{'content-type':'application/json'},
-      body:JSON.stringify({email:email})
-    });
-    var data = await response.json();
-    if(!response.ok) throw new Error(data.error || '验证码生成失败');
-    if(data.debugCode){
-      debug.textContent = '本地调试验证码：' + data.debugCode + '（线上不会显示）';
-      debug.classList.add('visible');
-      document.getElementById('reportEmailCode').value = data.debugCode;
-      message.textContent = '本地验证码已生成并自动填入。';
-    }else{
-      message.textContent = data.message || '验证码已发送，请检查收件箱和垃圾邮件。';
-    }
-  }catch(error){
-    message.textContent = error && error.message ? error.message : '验证码生成失败';
-  }finally{
-    button.disabled = false;
-    button.textContent = '发送验证码';
-  }
-}
-
 async function createReportRequest(){
   var button = document.getElementById('submitReportRequest');
   var message = document.getElementById('reportRequestMessage');
@@ -6635,27 +6620,26 @@ async function createReportRequest(){
   button.textContent = '正在建立任务…';
   message.textContent = '';
   try{
-    var response = await fetch('/api/report-requests',{
+    var response = await fetch(reportServiceUrl('/api/report-requests'),{
       method:'POST',
       headers:{'content-type':'application/json'},
       body:JSON.stringify({
-        email:document.getElementById('reportEmail').value.trim(),
-        code:document.getElementById('reportEmailCode').value.trim(),
         consent:document.getElementById('reportConsent').checked,
         reportVariant:selectedVariant.value,
         input:state.birthInput
       })
     });
-    var data = await response.json();
+    var data = await readReportServiceJson(response);
     if(!response.ok) throw new Error(data.error || '报告申请失败');
-    reportStatusUrl = window.location.origin + '/report?token=' + encodeURIComponent(data.accessToken);
+    reportStatusUrl = REPORT_SERVICE_ORIGIN + '/report?token=' + encodeURIComponent(data.accessToken);
     document.getElementById('reportTaskNumber').textContent = data.taskNo;
+    document.getElementById('reportPickupCode').textContent = data.pickupCode;
     document.getElementById('reportSuccessVariant').textContent = (data.reportVariant || selectedVariant.value) === 'professional' ? '专业版' : '大白话版';
     document.getElementById('openReportStatus').href = reportStatusUrl;
     document.getElementById('reportRequestForm').classList.add('hidden');
     document.getElementById('reportRequestSuccess').classList.add('visible');
   }catch(error){
-    message.textContent = error && error.message ? error.message : '报告申请失败';
+    message.textContent = reportServiceErrorMessage(error,'报告申请失败');
   }finally{
     button.disabled = false;
     button.textContent = '提交 AI 大报告申请';
@@ -6665,11 +6649,14 @@ async function createReportRequest(){
 async function copyReportStatusUrl(){
   var button = document.getElementById('copyReportStatus');
   if(!reportStatusUrl) return;
+  var taskNo = document.getElementById('reportTaskNumber').textContent;
+  var pickupCode = document.getElementById('reportPickupCode').textContent;
+  var credential = '紫微时域报告查询\n任务编号：' + taskNo + '\n提取码：' + pickupCode + '\n查询链接：' + reportStatusUrl;
   try{
-    await navigator.clipboard.writeText(reportStatusUrl);
-    button.textContent = '私密链接已复制';
+    await navigator.clipboard.writeText(credential);
+    button.textContent = '查询凭证已复制';
   }catch(error){
-    button.textContent = '复制失败，请打开任务页后收藏';
+    button.textContent = '复制失败，请立即截图保存';
   }
 }
 
@@ -6689,7 +6676,6 @@ document.getElementById('forgetSavedProfile').addEventListener('click',clearSave
 document.getElementById('clearSavedProfile').addEventListener('click',clearSavedLocalProfile);
 document.getElementById('closeReportRequest').addEventListener('click',closeReportRequestPanel);
 document.getElementById('reportRequestBackdrop').addEventListener('click',closeReportRequestPanel);
-document.getElementById('sendReportCode').addEventListener('click',function(){ void sendReportVerification(); });
 document.getElementById('submitReportRequest').addEventListener('click',function(){ void createReportRequest(); });
 document.getElementById('copyReportStatus').addEventListener('click',function(){ void copyReportStatusUrl(); });
 document.getElementById('continueAfterReportRequest').addEventListener('click',continueAfterReportRequest);
