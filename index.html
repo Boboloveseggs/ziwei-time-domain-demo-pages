@@ -400,6 +400,7 @@
   .request-kicker{margin:0 0 10px;color:var(--accent);font-size:10px;letter-spacing:.16em;text-transform:uppercase;}
   .request-title{margin:0;font-family:"Songti SC","SimSun",serif;font-size:29px;font-weight:600;letter-spacing:.05em;}
   .request-lead{margin:13px 0 26px;color:var(--ink-dim);font-size:12px;line-height:1.8;}
+  .request-birth-confirmation{margin:-12px 0 22px;padding:11px 13px;border-left:3px solid var(--accent);color:var(--ink);background:rgba(143,67,57,.07);font-size:10px;line-height:1.7;}
   .request-editions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:0 0 26px;padding:0;border:0;}
   .request-editions legend{grid-column:1/-1;margin-bottom:2px;color:var(--ink-dim);font-size:10px;letter-spacing:.08em;}
   .request-edition{display:grid;grid-template-columns:auto 1fr;gap:9px;align-items:start;padding:13px;border:1px solid var(--line);background:rgba(255,255,255,.36);cursor:pointer;transition:border-color .18s ease,background .18s ease,box-shadow .18s ease;}
@@ -1455,6 +1456,7 @@
     <p class="request-kicker">AI report · Up to 20 pages</p>
     <h2 class="request-title" id="reportRequestTitle">生成超级详细 AI 大报告</h2>
     <p class="request-lead">当前命盘已经按你输入的出生资料真实排好，可以随时继续浏览。提交申请前请选择专业版或大白话版其中一份；所选单份报告最高可长达20页。无需填写邮箱，提交后请保存查询凭证，约一天后回到网页查看进度与结果。</p>
+    <p class="request-birth-confirmation" id="reportBirthConfirmation">本次将提交的出生资料：—</p>
 
     <fieldset class="request-editions">
       <legend>选择报告版本 · 只能选择一个</legend>
@@ -2799,9 +2801,23 @@ function buildPlainReport(chart,includeProfile){
 // 二、状态机
 // ============================================================
 
+function defaultBirthInput(){
+  var parts = new Intl.DateTimeFormat('en-CA',{
+    timeZone:'Asia/Shanghai',year:'numeric',month:'numeric',day:'numeric',
+    hour:'numeric',minute:'numeric',hourCycle:'h23'
+  }).formatToParts(new Date());
+  var values = {};
+  parts.forEach(function(part){ if(part.type !== 'literal') values[part.type] = parseInt(part.value,10); });
+  return {
+    year:Math.max(1940,Math.min(2026,values.year || 2026)),month:values.month || 1,day:values.day || 1,
+    hour:values.hour || 0,minute:values.minute || 0,gender:'female',calendar:'solar',isLeapMonth:false
+  };
+}
+
 var state = {
   current: 'intro',
-  birthInput: { year:2026, month:7, day:14, hour:6, minute:53, gender:'female', calendar:'solar', isLeapMonth:false },
+  birthInput: defaultBirthInput(),
+  committedBirthInput: null,
   chart: null,
   generatedChart: null,
   reportType: null,
@@ -2981,6 +2997,49 @@ function toggleChartShape(){
 // 三、滚轮选择器
 // ============================================================
 
+function updateWheelSelectionFromPosition(el){
+  var items = el.querySelectorAll('.wheel-item');
+  var containerRect = el.getBoundingClientRect();
+  var centerY = containerRect.height / 2;
+  var closest = null;
+  var closestDist = Infinity;
+  items.forEach(function(item){
+    var r = item.getBoundingClientRect();
+    var itemCenter = r.top + r.height/2 - containerRect.top;
+    var dist = Math.abs(itemCenter - centerY);
+    if(dist < closestDist){ closestDist = dist; closest = item; }
+    item.classList.remove('selected');
+    item.removeAttribute('aria-selected');
+  });
+  if(!closest) return null;
+  closest.classList.add('selected');
+  closest.setAttribute('aria-selected','true');
+  var key = el.id.replace('wheel','').toLowerCase();
+  var value = parseInt(closest.dataset.val,10);
+  state.birthInput[key] = value;
+  return value;
+}
+
+function cloneBirthInput(input){
+  return {
+    year:Number(input.year),month:Number(input.month),day:Number(input.day),
+    hour:Number(input.hour),minute:Number(input.minute),gender:input.gender,
+    calendar:input.calendar,isLeapMonth:Boolean(input.isLeapMonth)
+  };
+}
+
+function syncBirthInputFromControls(){
+  ['wheelYear','wheelMonth','wheelDay','wheelHour','wheelMinute'].forEach(function(id){
+    updateWheelSelectionFromPosition(document.getElementById(id));
+  });
+  var calendar = document.querySelector('#calToggle .toggle-btn.active');
+  var gender = document.querySelector('#genderToggle .toggle-btn.active');
+  state.birthInput.calendar = calendar ? calendar.dataset.cal : state.birthInput.calendar;
+  state.birthInput.gender = gender ? gender.dataset.gender : state.birthInput.gender;
+  state.birthInput.isLeapMonth = state.birthInput.calendar === 'lunar' && document.getElementById('lunarLeapMonth').checked;
+  return cloneBirthInput(state.birthInput);
+}
+
 function initWheels(){
   buildWheel('wheelYear', 1940, 2026, state.birthInput.year);
   buildWheel('wheelMonth', 1, 12, state.birthInput.month);
@@ -3009,25 +3068,7 @@ function buildWheel(id, min, max, selected){
   el.parentElement.appendChild(stepper);
 
   function updateSelection(){
-    var items = el.querySelectorAll('.wheel-item');
-    var containerRect = el.getBoundingClientRect();
-    var centerY = containerRect.height / 2;
-    var closest = null;
-    var closestDist = Infinity;
-    items.forEach(function(item){
-      var r = item.getBoundingClientRect();
-      var itemCenter = r.top + r.height/2 - containerRect.top;
-      var dist = Math.abs(itemCenter - centerY);
-      if(dist < closestDist){ closestDist = dist; closest = item; }
-      item.classList.remove('selected');
-      item.removeAttribute('aria-selected');
-    });
-    if(closest){
-      closest.classList.add('selected');
-      closest.setAttribute('aria-selected','true');
-      var key = id.replace('wheel','').toLowerCase();
-      state.birthInput[key] = parseInt(closest.dataset.val, 10);
-    }
+    return updateWheelSelectionFromPosition(el);
   }
 
   function moveBy(delta, behavior){
@@ -3035,7 +3076,10 @@ function buildWheel(id, min, max, selected){
     var value = current ? parseInt(current.dataset.val,10) : selected;
     var next = Math.max(min,Math.min(max,value + delta));
     var target = el.querySelector('[data-val="' + next + '"]');
-    if(target) target.scrollIntoView({behavior:behavior || 'smooth',block:'center'});
+    if(target){
+      target.scrollIntoView({behavior:'auto',block:'center'});
+      updateSelection();
+    }
   }
 
   el.addEventListener('scroll', function(){
@@ -3050,7 +3094,8 @@ function buildWheel(id, min, max, selected){
     }
     var target = e.target;
     if(target.classList.contains('wheel-item')){
-      target.scrollIntoView({ behavior:'smooth', block:'center' });
+      target.scrollIntoView({ behavior:'auto', block:'center' });
+      updateSelection();
     }
   });
 
@@ -3075,7 +3120,7 @@ function buildWheel(id, min, max, selected){
     el.classList.remove('dragging');
     updateSelection();
     var snapped = el.querySelector('.wheel-item.selected');
-    if(snapped) snapped.scrollIntoView({behavior:'smooth',block:'center'});
+    if(snapped) snapped.scrollIntoView({behavior:'auto',block:'center'});
     setTimeout(function(){el._dragMoved = false;},0);
   }
   el.addEventListener('pointerup',finishWheelDrag);
@@ -6392,8 +6437,11 @@ function createBrowserChart(input){
   };
 }
 
-async function generateRealChart(){
-  state.generatedChart = createBrowserChart(state.birthInput);
+async function generateRealChart(input){
+  var submittedInput = cloneBirthInput(input || state.birthInput);
+  state.birthInput = cloneBirthInput(submittedInput);
+  state.committedBirthInput = cloneBirthInput(submittedInput);
+  state.generatedChart = createBrowserChart(cloneBirthInput(submittedInput));
   return state.generatedChart;
 }
 
@@ -6410,7 +6458,7 @@ async function resumeSavedProfile(){
   button.textContent = '正在打开…';
   note.textContent = '正在恢复上次保存在本机的命盘…';
   try{
-    await generateRealChart();
+    await generateRealChart(state.birthInput);
     releaseEntryPalaceLock();
     entryFocusProgress = 0;
     clearSelection();
@@ -6491,7 +6539,8 @@ async function submitBirthAndArrange(){
   note.classList.remove('error');
   note.classList.add('working');
   try{
-    await generateRealChart();
+    var submittedInput = syncBirthInputFromControls();
+    await generateRealChart(submittedInput);
     releaseEntryPalaceLock();
     entryFocusProgress = 0;
     clearSelection();
@@ -6514,6 +6563,8 @@ async function submitBirthAndArrange(){
 
 function openReportRequestPanel(){
   var panel = document.getElementById('reportRequestPanel');
+  var reportInput = cloneBirthInput(state.committedBirthInput || (state.chart && state.chart.input) || state.birthInput);
+  document.getElementById('reportBirthConfirmation').textContent = '本次将提交的出生资料：' + inputSummary({input:reportInput}).replace(/^真实排盘 · /,'');
   reportRequestReturnFocus = document.activeElement;
   document.getElementById('reportRequestBackdrop').classList.add('visible');
   panel.classList.add('visible');
@@ -6619,6 +6670,7 @@ async function createReportRequest(){
   button.disabled = true;
   button.textContent = '正在建立任务…';
   message.textContent = '';
+  var reportInput = cloneBirthInput(state.committedBirthInput || (state.chart && state.chart.input) || state.birthInput);
   try{
     var response = await fetch(reportServiceUrl('/api/report-requests'),{
       method:'POST',
@@ -6626,7 +6678,7 @@ async function createReportRequest(){
       body:JSON.stringify({
         consent:document.getElementById('reportConsent').checked,
         reportVariant:selectedVariant.value,
-        input:state.birthInput
+        input:reportInput
       })
     });
     var data = await readReportServiceJson(response);
@@ -6752,6 +6804,7 @@ window.__ZIWEI_FLOW_TEST__ = {
     return {
       current: state.current,
       birthInput: JSON.parse(JSON.stringify(state.birthInput)),
+      committedBirthInput: state.committedBirthInput ? JSON.parse(JSON.stringify(state.committedBirthInput)) : null,
       hasChart: !!state.chart,
       reportType: state.reportType,
       reportMode: state.reportMode,
@@ -6786,7 +6839,8 @@ window.__ZIWEI_FLOW_TEST__ = {
         state.birthInput[k] = input[k];
       }
     }
-    return state.birthInput;
+    syncBirthControlsFromState();
+    return cloneBirthInput(state.birthInput);
   },
   submitBirth: async function(){
     if(state.current === 'intro'){
